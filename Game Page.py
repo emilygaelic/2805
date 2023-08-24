@@ -2,7 +2,6 @@ import pygame
 import random
 import sys
 
-
 class Blocks:
     def __init__(self, block_num):
         self.board = GameBoard()
