@@ -111,7 +111,7 @@ class ConfigurePage:
         back_text = FONT.render("Back", True, pygame.Color('white'))
         screen.blit(back_text, (self.back_button_rect.x + 10, self.back_button_rect.y + 5))
 
-    def handle_mouse_click(self, screen, mouse_pos,loop):
+    def handle_mouse_click(self, screen, mouse_pos):
         if self.size_10x20_rect.collidepoint(mouse_pos):
             self.selected_size = "10x20"
         elif self.size_10x24_rect.collidepoint(mouse_pos):
@@ -134,11 +134,21 @@ class ConfigurePage:
             pygame.quit()
             sys.exit()
         elif self.back_button_rect.collidepoint(mouse_pos):
-            loop = False
             screen.fill((255, 255, 255))
             from StartupPage import StartupPage
             startup_page = StartupPage()
             startup_page.draw_startup_page(screen)
+            while True:
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        pygame.quit()
+                        sys.exit()
+                    elif event.type == pygame.MOUSEBUTTONDOWN:
+                        mouse = pygame.mouse.get_pos()
+                        startup_page.handle_mouse_click(screen, mouse)
+                pygame.display.flip()
+
+
 
 
 

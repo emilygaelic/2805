@@ -48,6 +48,7 @@ def show_top_scores(scores, screen):
                     from StartupPage import StartupPage
                     startup_page = StartupPage()
                     startup_page.draw_startup_page(screen)
+                    return
                 elif close_button_rect.collidepoint(mouse_pos):
                     pygame.quit()
                     sys.exit()

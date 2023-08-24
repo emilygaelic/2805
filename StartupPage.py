@@ -22,6 +22,7 @@ class StartupPage:
         self.exit = pygame.Rect(800, 600, 125, 50)
 
     def draw_startup_page(self, win):
+        pygame.display.set_caption('Welcome')
         pic = pygame.image.load('TetrisLogo.png')
         font = pygame.font.SysFont('Courier', 50, 'bold')
         font2 = pygame.font.SysFont('Courier', 20)
@@ -44,7 +45,7 @@ class StartupPage:
         win.blit(text3, (self.scores.x, self.scores.y))
         win.blit(text4, (self.configure.x, self.configure.y))
 
-    def handle_mouse_click(self, win, mouse_pos, loop):
+    def handle_mouse_click(self, win, mouse_pos):
         if self.exit.collidepoint(mouse_pos):
             pygame.quit()
             sys.exit()
@@ -56,6 +57,20 @@ class StartupPage:
             win.fill((255, 255, 255))
             pygame.display.set_caption("Tetris Setting")
             configure_page.draw_configure_page(win)
+            pygame.mixer.music.load("background.wav")
+            pygame.mixer.music.play(-1)
+            while True:
+                for e in pygame.event.get():
+                    if e.type == pygame.QUIT:
+                        pygame.quit()
+                        sys.exit()
+                    elif e.type == pygame.MOUSEBUTTONDOWN:
+                        mouse_pos = pygame.mouse.get_pos()
+                        configure_page.handle_mouse_click(win, mouse_pos)
+
+                pygame.display.flip()
+                clock = pygame.time.Clock()
+                clock.tick(30)
 
         elif self.scores.collidepoint(mouse_pos):
             from TopscorePage import show_top_scores
