@@ -7,50 +7,54 @@ class Blocks:
         self.board = GameBoard()
         self.block = block_num  # block number to identify colour
         self.rotations = 0
-        self.x = 50 + (self.board.cols // 2 * 30) - 30  # x offset to start block in the middle
+        self.x = 140 #(self.board.cols // 2 * 30) -10  # x offset to start block in the middle
         self.y = 40  # y offset
         self.rotation = 0
+       # self.moves = []
 
-    def block_position(self):
-        # return whether or not the block is within the grid
-        block_cells = self.rotations[self.rotation]  # list of current rotation coords
-        moves = []  # list of previous moves
+    def valid_space(self): # return whether or not the block is within the grid
+        if self.block == 1:
+            if (self.x < 50) or (self.x > (self.board.cols * self.board.cell_size-60) or
+                             self.y > (self.board.rows * self.board.cell_size)):
+                return False
+        else:        
+            if (self.x < 50) or (self.x > (self.board.cols * self.board.cell_size - 30) or
+                                self.y > (self.board.rows * self.board.cell_size)):
+                return False
+        return True
 
-    def draw_block(self, game_page):
+    def draw_block(self, game_page, x = 0, y = 0):
         for i in range(4):
             for j in range(4):
-                # print(self.rotations[pos])
                 for cell in self.rotations[self.rotation]:
-                    # print(position)
-                    # start_pos = (position[0] - 2, position[1])
-                    # print(start_pos)
-                    # self.cells.append(start_pos)
                     if (i == cell[0] and j == cell[1]):
                         block_colour = self.board.colours()
                         pygame.draw.rect(game_page, block_colour[self.block], (
-                            j * self.board.cell_size + self.x, i * self.board.cell_size + self.y,
+                            j * self.board.cell_size + (self.x + x), i * self.board.cell_size + (self.y + y),
                             self.board.cell_size - 1, self.board.cell_size - 1))
-
-    # i need to save the position of the blocks relative to the grid so i can know if they are within the grid
-    # then next would be locking in the blocks, collisions, eliminating lines
+                    
     def drop_block(self):
         self.y += self.board.cell_size
-        if self.y > (self.board.rows * self.board.cell_size + (
-                self.board.cell_size * 2)):  # 60 to offset the shape beginning above the grid
+        if not self.valid_space():
             self.y -= self.board.cell_size
 
     def move_left(self):
         self.x -= self.board.cell_size
-        if self.x < 50:
+        if not self.valid_space():
             self.x += self.board.cell_size
 
     def move_right(self):
         self.x += self.board.cell_size
-        if self.x > (self.board.cols * self.board.cell_size):
+        if not self.valid_space(): 
             self.x -= self.board.cell_size
 
     def rotate_block(self):
-        self.rotation = (self.rotation + 1) % len(self.rotations[self.rotation])
+        old_rotation = self.rotation
+        self.rotation = (self.rotation + 1) % len(self.rotations)
+        if not self.valid_space(): 
+            self.rotation = old_rotation
+
+
 
 
 class I(Blocks):  # light blue
@@ -61,37 +65,36 @@ class I(Blocks):  # light blue
             1: [(0, 2), (1, 2), (2, 2), (3, 2)]
         }
 
-
 class J(Blocks):  # blue
     def __init__(self):
         super().__init__(block_num=2)
         self.rotations = {
-            0: [(1, 0), (2, 0), (2, 1), (2, 2)],
-            1: [(1, 1), (1, 2), (2, 1), (3, 1)],
-            2: [(2, 0), (2, 1), (2, 2), (3, 2)],
-            3: [(3, 0), (3, 1), (2, 1), (1, 1)]
+            
+            0: [(2, 0), (2, 1), (2, 2), (3, 2)],
+            1: [(3, 0), (3, 1), (2, 1), (1, 1)],
+            2: [(1, 0), (2, 0), (2, 1), (2, 2)],
+            3: [(1, 1), (1, 2), (2, 1), (3, 1)]
         }
+
 class L(Blocks):  # orange
     def __init__(self):
         super().__init__(block_num=3)
         self.rotations = {
-            0: [(1, 2), (2, 0), (2, 1), (2, 2)],
-            1: [(1, 1), (3, 2), (2, 1), (3, 1)],
-            2: [(2, 0), (2, 1), (2, 2), (3, 0)],
-            3: [(1, 0), (3, 1), (2, 1), (1, 1)]
+            0: [(2, 0), (2, 1), (2, 2), (3, 0)],
+            1: [(1, 0), (3, 1), (2, 1), (1, 1)],
+            2: [(1, 2), (2, 0), (2, 1), (2, 2)],
+            3: [(1, 1), (3, 2), (2, 1), (3, 1)]
         }
-
 
 class T(Blocks):  # purple
     def __init__(self):
         super().__init__(block_num=4)
         self.rotations = {
-            0: [(2, 0), (2, 1), (2, 2), (1, 1)],
-            1: [(1, 1), (2, 1), (3, 1), (2, 2)],
-            2: [(2, 0), (2, 1), (2, 2), (3, 1)],
-            3: [(1, 1), (2, 1), (3, 1), (2, 0)]
+            0: [(2, 0), (2, 1), (2, 2), (3, 1)],
+            1: [(1, 1), (2, 1), (3, 1), (2, 0)],
+            2: [(2, 0), (2, 1), (2, 2), (1, 1)],
+            3: [(1, 1), (2, 1), (3, 1), (2, 2)]
         }
-
 
 class O(Blocks):  # yellow
     def __init__(self):
@@ -100,34 +103,29 @@ class O(Blocks):  # yellow
             0: [(2, 1), (2, 2), (3, 1), (3, 2)]
         }
 
-
 class S(Blocks):  # green
     def __init__(self):
         super().__init__(block_num=6)
         self.rotations = {
-            0: [(1, 1), (2, 1), (2, 2), (3, 2)],
-            1: [(3, 0), (3, 1), (2, 1), (2, 2)]
+            0: [(3, 0), (3, 1), (2, 1), (2, 2)], 
+            1: [(1, 1), (2, 1), (2, 2), (3, 2)]
         }
-
 
 class Z(Blocks):  # red
     def __init__(self):
         super().__init__(block_num=7)
         self.rotations = {
             0: [(2, 0), (3, 1), (2, 1), (3, 2)],
-            1: [(1, 2), (2, 1), (2, 2), (3, 1)]
+            1: [(1, 2), (2, 1), (2, 2), (3, 1)],
         }
-
 
 # PLAYING BOARD
 class GameBoard:
     def __init__(self):
-        # these should be changeable
         self.rows = 20
         self.cols = 10
         self.cell_size = 30
-        self.grid = [[0 for j in range(self.cols)] for i in range(self.rows)]
-
+        self.grid = [[0 for j in range(self.cols)] for i in range(self.rows)]\
 
     def print_board(self):
         for i in range(self.rows):
@@ -154,23 +152,80 @@ class GameBoard:
                 pygame.draw.rect(game_page, cell_colours[cell_colour], (
                 j * self.cell_size + 50, i * self.cell_size + 100, self.cell_size - 1, self.cell_size - 1))
 
+ #   def inside_board(self, cells):
+    #    for cell in cells:
+
 
 class PlayGame:
     def __init__(self):
         self.board = GameBoard()
         self.blocks = [I(), J(), L(), O(), S(), T(), Z()]
         self.current_block = self.get_block()
+        self.next_block = self.get_block()
+        self.board_filled = False
 
-        # self.game_over = False
-        # self.score = 0
+        self.white = (255, 255, 255)
+        self.title_font = pygame.font.SysFont("Courier", 50)
+        self.font = pygame.font.SysFont("Courier", 30)
+        self.font2 = pygame.font.SysFont("Courier", 20)
+
+        self.title = self.title_font.render("Tetris", True, self.white)
+        self.group = self.font2.render("Group 44", True, self.white)
+
+        self.next = self.font.render("Next Block: ", True, self.white)
+
+        self.player_score = 0
+        self.score = self.font.render("Score: ", True, self.white)
+        self.score_value = self.font.render(str(self.player_score), True, self. white)
+
+        self.eliminated_lines = 0
+        self.eliminate = self.font.render("Eliminated Lines: ", True, self.white)
+        self.eliminated = self.font.render(str(self.eliminated_lines), True, self. white)
+
+        self.player_level = 0
+        self.level = self.font.render("Level: ", True, self.white)
+        self.level_value = self.font.render(str(self.player_level), True, self. white)
+
+        self.info = self.font2.render("Game Details: ", True, self.white)
+
+        self.game_over = self.font.render("GAME OVER", True, self.white)
+        
+        self.quit_surface = self.font.render("Are you sure you want to quit?", True, self.white)
+        self.warning = self.font.render("Progress may be lost.", True, self.white)
+        self.yes = self.font.render("Quit", True, self.white)
+        self.no = self.font.render("Cancel", True, self.white)
+        
 
     def get_block(self):
-        # blocks = [I(), J(), L(), O(), S(), T(), Z()]
-        return random.choice(self.blocks)
+        if len(self.blocks) == 0: #if list is empty
+            self.blocks = [I(), J(), L(), O(), S(), T(), Z()]
+        new_block = random.choice(self.blocks)
+        self.blocks.remove(new_block)
+        return new_block
 
     def draw_game(self, game_page):
         self.board.draw_board(game_page)
         self.current_block.draw_block(game_page)
+
+        #cells = self.current_block.rotations[self.current_block.rotation]
+       # self.board.inside_board(cells) # initialise i, j for block
+
+        game_page.blit(self.title, (120, 20))
+        game_page.blit(self.group, (300, 70))
+        game_page.blit(self.next, (500, 50))
+        self.next_block.draw_block(game_page, 360, 40)
+
+        game_page.blit(self.score, (500, 250))
+        game_page.blit(self.score_value, (610, 250))
+
+        game_page.blit(self.eliminate, (500, 400))
+        game_page.blit(self.eliminated, (810, 400))
+
+        game_page.blit(self.level, (500, 550))
+        game_page.blit(self.level_value, (610, 550))
+        
+        game_page.blit(self.info, (500, 650))
+
 
     def block_falls(self):
         self.current_block.drop_block()
@@ -184,57 +239,97 @@ class PlayGame:
     def rotate(self):
         self.current_block.rotate_block()
 
+    # def lock_block(self):
+    #     cells = self.current_block.rotations[self.current_block.rotation]
+    #     i = (self.current_block.y - 40) // 30 
+    #     j = (self.current_block.x - 140) // 30
+    #     for cell in cells:
+    #         self.board.grid[i][j] = self.current_block.block_num
+    #     self.current_block = self.next_block
+    #     self.next_block = self.get_block()
 
-### MAIN
-pygame.init()
+    def quit_game(self, game_page):
+        red = (255,0,0)
 
-# Load and play background music
-pygame.mixer.music.load("background.wav")
-pygame.mixer.music.play(-1)
+        quit_rect = pygame.Rect(250, 250, 600, 200)
+        pygame.draw.rect(game_page, (red), quit_rect)
 
-# GAME SURFACES
-# title, score, level, group, next block, game over, quit,
-game_width = 1000
-game_height = 700
-game_page = pygame.display.set_mode((game_width, game_height))
+        game_page.blit(self.quit_surface, (300, 300))
+        game_page.blit(self.warning, (300, 330))
+        game_page.blit(self.yes, (350, 390))
+        game_page.blit(self.no, (500, 390))
+        pygame.display.update(quit_rect)
 
-clock = pygame.time.Clock()  # start clock
-pygame.time.set_timer(pygame.USEREVENT, 300)
+        for event in pygame.event.get():
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                mouse = pygame.mouse.get_pos()
+                if self.yes.collidepoint(mouse):
+                    return True
+                elif self.no.collidepoint(mouse):
+                    return False
 
-run = True  # run game variable
-game = PlayGame()
-rotate_sound = pygame.mixer.Sound("can_rotate.wav")
 
-while run:
 
-    # DISPLAY
-    # fill screen with grid and surfaces
-    game_page.fill((0, 0, 0))  # black background
-    game.draw_game(game_page)
+def main():
+    pygame.init()
 
-    # PLAYER ACTIONS
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:  # *or escape key
-            # *are you sure?
-            run = False
-            pygame.quit()
+    # Load and play background music
+    pygame.mixer.music.load("background.wav")
+    pygame.mixer.music.play(-1)
 
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_RIGHT:  # move right
-                game.move_block(True)
-            if event.key == pygame.K_LEFT:  # move left
-                game.move_block(False)
-            if event.key == pygame.K_UP:  # rotate
-                game.current_block.rotate_block()
-                rotate_sound.play()
-            if event.key == pygame.K_DOWN:  # move down
-                game.block_falls()
+    # GAME SURFACES
+    game_width = 1000
+    game_height = 700
+    pygame.display.set_caption('Tetris 44')
+    game_page = pygame.display.set_mode((game_width, game_height))
 
-        # if event.type == pygame.USEREVENT:
-        #   game.block_falls()
+    clock = pygame.time.Clock()  # start clock
+    pygame.time.set_timer(pygame.USEREVENT, 300)
 
-    # REFRESH GAME
-    pygame.display.update()
-    clock.tick(30)
+    run = True  # run game variable
+    game = PlayGame()
+    rotate_sound = pygame.mixer.Sound("can_rotate.wav")
 
-pygame.quit()
+    while run:
+
+        # DISPLAY - fill screen with grid and surfaces
+        game_page.fill((0, 0, 0))  # black background
+        game.draw_game(game_page)
+
+        # PLAYER ACTIONS
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT: # user quits
+                if (game.quit_game(game_page)):
+                    run = False
+                else:
+                    continue
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:# quits with escape key
+                    if (game.quit_game(game_page)):
+                        run = False
+                    else:
+                        continue
+
+                if event.key == pygame.K_RIGHT:  # move right
+                    game.move_block(True)
+                if event.key == pygame.K_LEFT:  # move left
+                    game.move_block(False)
+                if event.key == pygame.K_UP:  # rotate
+                    game.current_block.rotate_block()
+                    rotate_sound.play()
+                if event.key == pygame.K_DOWN:  # move down
+                    game.block_falls()
+
+            if event.type == pygame.USEREVENT:
+              game.block_falls()
+
+        if game.board_filled == True:
+            game.blit(game.game_over, (250, 250, 600, 200))
+
+        pygame.display.update()
+        clock.tick(30)
+
+
+if __name__ == "__main__":
+    main()
