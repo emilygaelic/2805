@@ -1,6 +1,7 @@
 import pygame
 import sys
 import random
+from GamePage import *
 
 
 pygame.init()
@@ -46,12 +47,72 @@ class StartupPage:
         win.blit(text4, (self.configure.x, self.configure.y))
 
     def handle_mouse_click(self, win, mouse_pos):
+        pygame.display.set_caption('Tetris 44')
         if self.exit.collidepoint(mouse_pos):
             pygame.quit()
             sys.exit()
         elif self.start.collidepoint(mouse_pos):
-            self.start = "start"
+            clock = pygame.time.Clock()  # start clock
+            pygame.time.set_timer(pygame.USEREVENT, 300)
+
+            run = True  # run game variable
+            game = PlayGame()
+            rotate_sound = pygame.mixer.Sound("can_rotate.wav")
+            while run:
+
+                # DISPLAY - fill screen with grid and surfaces
+                win.fill((0, 0, 0))  # black background
+                game.draw_game(win)
+
+                # PLAYER ACTIONS
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:  # user quits
+                        if (game.quit_game(win)):
+                            run = False
+                        else:
+                            continue
+
+                    if event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_ESCAPE:  # quits with escape key
+                            if (game.quit_game(win)):
+                                win.fill((255, 255, 255))
+                                from StartupPage import StartupPage
+                                startup_page = StartupPage()
+                                startup_page.draw_startup_page(win)
+                                while True:
+                                    for event in pygame.event.get():
+                                        if event.type == pygame.QUIT:
+                                            pygame.quit()
+                                            sys.exit()
+                                        elif event.type == pygame.MOUSEBUTTONDOWN:
+                                            mouse = pygame.mouse.get_pos()
+                                            startup_page.handle_mouse_click(win, mouse)
+                                    pygame.display.flip()
+                            else:
+                                print("continue")
+                                continue
+
+                        if event.key == pygame.K_RIGHT:  # move right
+                            game.move_block(True)
+                        if event.key == pygame.K_LEFT:  # move left
+                            game.move_block(False)
+                        if event.key == pygame.K_UP:  # rotate
+                            game.current_block.rotate_block()
+                            rotate_sound.play()
+                        if event.key == pygame.K_DOWN:  # move down
+                            game.block_falls()
+
+                    if event.type == pygame.USEREVENT:
+                        game.block_falls()
+
+                if game.board_filled == True:
+                    game.blit(game.game_over, (250, 250, 600, 200))
+
+                pygame.display.update()
+                clock.tick(30)
+
         elif self.configure.collidepoint(mouse_pos):
+
             from ConfigurePage import ConfigurePage
             configure_page = ConfigurePage()
             win.fill((255, 255, 255))
