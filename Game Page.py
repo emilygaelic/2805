@@ -186,7 +186,7 @@ class PlayGame:
         self.level = self.font.render("Level: ", True, self.white)
         self.level_value = self.font.render(str(self.player_level), True, self. white)
 
-        self.info = self.font2.render("Game Details: ", True, self.white)
+        self.info = self.font2.render("Game Details: Normal version, Player mode", True, self.white) # display actual 
 
         self.game_over = self.font.render("GAME OVER", True, self.white)
         
@@ -249,24 +249,35 @@ class PlayGame:
     #     self.next_block = self.get_block()
 
     def quit_game(self, game_page):
+
+        quit_screen = pygame.display.set_mode((1000, 700))
+
         red = (255,0,0)
 
         quit_rect = pygame.Rect(250, 250, 600, 200)
-        pygame.draw.rect(game_page, (red), quit_rect)
+        yes_rect = pygame.Rect(350, 390, 100, 30)
+        no_rect = pygame.Rect(600, 390, 100, 30)
+        
+        pygame.draw.rect(quit_screen, (red), quit_rect)
+        pygame.draw.rect(quit_screen, (red), yes_rect)
+        pygame.draw.rect(quit_screen, (red), no_rect)
+        
 
-        game_page.blit(self.quit_surface, (300, 300))
-        game_page.blit(self.warning, (300, 330))
-        game_page.blit(self.yes, (350, 390))
-        game_page.blit(self.no, (500, 390))
-        pygame.display.update(quit_rect)
+        while True:
 
-        for event in pygame.event.get():
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                mouse = pygame.mouse.get_pos()
-                if self.yes.collidepoint(mouse):
-                    return True
-                elif self.no.collidepoint(mouse):
-                    return False
+            quit_screen.blit(self.quit_surface, (300, 300))
+            quit_screen.blit(self.warning, (300, 330))
+            quit_screen.blit(self.yes, (350, 390))
+            quit_screen.blit(self.no, (600, 390))
+            pygame.display.update()
+
+            for event in pygame.event.get():
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    mouse = pygame.mouse.get_pos()
+                    if yes_rect.collidepoint(mouse):
+                        return True
+                    elif no_rect.collidepoint(mouse):
+                        return False
 
 
 
@@ -309,6 +320,7 @@ def main():
                     if (game.quit_game(game_page)):
                         run = False
                     else:
+                        print("continue")
                         continue
 
                 if event.key == pygame.K_RIGHT:  # move right
