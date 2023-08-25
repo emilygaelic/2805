@@ -322,7 +322,6 @@ def main():
                     if (game.quit_game(game_page)):
                         run = False
                     else:
-                        print("continue")
                         continue
 
                 if event.key == pygame.K_RIGHT:  # move right
