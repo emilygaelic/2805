@@ -22,3 +22,6 @@ appear and ask the user if they want to end the game, Saying 'yes' will bring th
 points, the player must elimiate lines with one block drop; one line equals one hundred points, two lines equals three hundred points, three lines equals six hundred
 points, and four lines equals one thousand points. The game ends when the field is filled with blocks and there is no more space for anymore falling blocks or if the 
 player decides to end the game.
+
+Group Number: 44
+Creators: Emily Gaelic, Sunwoo Nam, Adriana Naughton
