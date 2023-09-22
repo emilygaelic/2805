@@ -60,14 +60,14 @@ class StartupPage:
                 # PLAYER ACTIONS
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:  # user quits
-                        if (game.quit_game(start_page)):
+                        if (game.quit_game()):
                             run = False
                         else:
                             continue
 
                     if event.type == pygame.KEYDOWN:
                         if event.key == pygame.K_ESCAPE:  # quits with escape key
-                            if (game.quit_game(start_page)):
+                            if (game.quit_game()):
                                 start_page.fill((255, 255, 255))
                                 from StartupPage import StartupPage
                                 startup_page = StartupPage()
@@ -98,8 +98,8 @@ class StartupPage:
                     if event.type == pygame.USEREVENT:
                         game.block_falls()
 
-                if game.board_filled == True:
-                    game.blit(game.game_over, (250, 250, 600, 200))
+               # if game.board_filled == True:
+                    #game.blit(game.game_over, (250, 250, 600, 200))
 
                 pygame.display.update()
                 clock.tick(30)
