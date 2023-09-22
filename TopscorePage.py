@@ -20,19 +20,22 @@ def show_top_scores(scores, screen):
         score_rect = score_text.get_rect(center=(screen.get_width() // 2, 120 + i * 40))
         screen.blit(score_text, score_rect)
 
-    close_button_rect = pygame.Rect(400, 600, 200, 40)
-    pygame.draw.rect(screen, (200, 0, 0), close_button_rect)
-    close_button_text = font.render('Close', True, (255, 255, 255))
-    close_text_rect = close_button_text.get_rect(center=close_button_rect.center)
+    # Calculate the position of the back and close buttons
+    button_width, button_height = 200, 40
+    button_spacing = 20
+    total_button_width = 2 * button_width + button_spacing
 
-    screen.blit(close_button_text, close_text_rect)
-
-    back_button_rect = pygame.Rect(750, 600, 200, 40)
+    back_button_rect = pygame.Rect((screen.get_width() - total_button_width) // 2, 600, button_width, button_height)
     pygame.draw.rect(screen, (200, 0, 0), back_button_rect)
     back_button_text = font.render('Back', True, (255, 255, 255))
     back_text_rect = back_button_text.get_rect(center=back_button_rect.center)
-
     screen.blit(back_button_text, back_text_rect)
+
+    close_button_rect = pygame.Rect(back_button_rect.right + button_spacing, 600, button_width, button_height)
+    pygame.draw.rect(screen, (200, 0, 0), close_button_rect)
+    close_button_text = font.render('Close', True, (255, 255, 255))
+    close_text_rect = close_button_text.get_rect(center=close_button_rect.center)
+    screen.blit(close_button_text, close_text_rect)
 
     pygame.display.flip()
 

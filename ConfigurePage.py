@@ -99,17 +99,22 @@ class ConfigurePage:
         screen.blit(player_text, (self.player_mode_rect.x + 10, self.player_mode_rect.y + 10))
         screen.blit(ai_text, (self.ai_mode_rect.x + 10, self.ai_mode_rect.y + 10))
 
-        # Draw close button
-        pygame.draw.rect(screen, pygame.Color('black'), self.close_button_rect)
-        pygame.draw.rect(screen, pygame.Color('black'), self.close_button_rect, 2)
-        close_text = FONT.render("Close", True, pygame.Color('white'))
-        screen.blit(close_text, (self.close_button_rect.x + 10, self.close_button_rect.y + 5))
-
-        # back button
+        # Draw back button on the left side
         pygame.draw.rect(screen, pygame.Color('black'), self.back_button_rect)
         pygame.draw.rect(screen, pygame.Color('black'), self.back_button_rect, 2)
         back_text = FONT.render("Back", True, pygame.Color('white'))
         screen.blit(back_text, (self.back_button_rect.x + 10, self.back_button_rect.y + 5))
+
+        # Calculate the position of the close button on the right side
+        close_button_x = SCREEN_WIDTH - self.close_button_rect.width - 50
+
+        # Draw close button on the right side
+        close_button_rect = pygame.Rect(close_button_x, self.close_button_rect.y, self.close_button_rect.width,
+                                        self.close_button_rect.height)
+        pygame.draw.rect(screen, pygame.Color('black'), close_button_rect)
+        pygame.draw.rect(screen, pygame.Color('black'), close_button_rect, 2)
+        close_text = FONT.render("Close", True, pygame.Color('white'))
+        screen.blit(close_text, (close_button_rect.x + 10, close_button_rect.y + 5))
 
     def handle_mouse_click(self, screen, mouse_pos):
         if self.size_10x20_rect.collidepoint(mouse_pos):
