@@ -3,9 +3,7 @@ import sys
 import random
 from GamePage import *
 
-
 pygame.init()
-
 
 class StartupPage:
 
@@ -129,7 +127,7 @@ class StartupPage:
                 clock.tick(30)
 
         elif self.scores.collidepoint(mouse_pos):
-            from TopscorePage import show_top_scores
+            from TopscorePage import HighscorePage
             pygame.display.set_caption('Top Scores')
 
             # Generate random player scores
@@ -142,4 +140,4 @@ class StartupPage:
             # sort scores in desc order
             player_scores.sort(key=lambda x: x[1], reverse=True)
 
-            show_top_scores(player_scores, start_page)
+            HighscorePage.show_top_scores(player_scores, start_page)
