@@ -62,6 +62,7 @@ class StartupPage:
                     if event.type == pygame.QUIT:  # user quits
                         if (game.quit_game()):
                             run = False
+                            sys.exit()
                         else:
                             continue
 
