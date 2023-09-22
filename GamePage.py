@@ -19,6 +19,7 @@ class BlockFactory:
             return T()
         elif block_type == "Z":
             return Z()
+
 class Blocks:
     def __init__(self, block_num):
         self.board = GameBoard()
@@ -72,7 +73,7 @@ class Blocks:
         if not self.valid_space():
             self.rotation = old_rotation
 
-# Subclasses for each block type
+# Child classes for each block type
 class I(Blocks):  # light blue
     def __init__(self):
         super().__init__(block_num=1)
@@ -142,7 +143,7 @@ class Z(Blocks):  # red
         }
 
 
-# PLAYING BOARD
+# GameBoard class for managing the board
 class GameBoard:
     def __init__(self):
         self.rows = 20
@@ -151,7 +152,6 @@ class GameBoard:
         self.grid = [[0 for j in range(self.cols)] for i in range(self.rows)]
 
     def print_board(self):
-
             for i in range(self.rows):
                 for j in range(self.cols):
                     print(self.grid[i][j], end=" ")
@@ -189,43 +189,23 @@ class PlayGame:
         self.next_block = self.get_block()
         self.board_filled = False
 
-        self.white = (255, 255, 255)
-        self.title_font = pygame.font.SysFont("Courier", 50)
-        self.font = pygame.font.SysFont("Courier", 30)
-        self.font2 = pygame.font.SysFont("Courier", 20)
-
-        self.title = self.title_font.render("Tetris", True, self.white)
-        self.group = self.font2.render("Group 44", True, self.white)
-
-        self.next = self.font.render("Next Block: ", True, self.white)
-
         self.player_score = 0
-        self.score = self.font.render("Score: ", True, self.white)
-        self.score_value = self.font.render(str(self.player_score), True, self.white)
-
         self.eliminated_lines = 0
-        self.eliminate = self.font.render("Eliminated Lines: ", True, self.white)
-        self.eliminated = self.font.render(str(self.eliminated_lines), True, self.white)
-
         self.player_level = 0
-        self.level = self.font.render("Level: ", True, self.white)
-        self.level_value = self.font.render(str(self.player_level), True, self.white)
-
-        self.info = self.font2.render("Game Details: Normal version, Player mode", True, self.white)  # display actual
-
-        self.game_over = self.font.render("GAME OVER", True, self.white)
-
-        self.quit_surface = self.font.render("Are you sure you want to quit?", True, self.white)
-        self.warning = self.font.render("Progress may be lost.", True, self.white)
-        self.yes = self.font.render("Quit", True, self.white)
-        self.no = self.font.render("Cancel", True, self.white)
+        #self.game_over = self.font.render("GAME OVER", True, self.white)
 
     def get_block(self):
-        if not hasattr(self, 'blocks') or len(self.blocks) == 0:  # if list is empty or not defined
+        if not hasattr(self, 'blocks'):  # if list is empty or not defined
             self.blocks = ["I", "J", "L", "O", "S", "T", "Z"]  # Use block type names
         new_block_type = random.choice(self.blocks)
         self.blocks.remove(new_block_type)
         return self.block_factory.create_block(new_block_type)
+    
+        # if len(self.blocks) == 0:  # if list is empty
+        #     self.blocks = [I(), J(), L(), O(), S(), T(), Z()]
+        # new_block = random.choice(self.blocks)
+        # self.blocks.remove(new_block)
+        # return new_block
 
     def draw_game(self, game_page):
         self.board.draw_board(game_page)
@@ -233,22 +213,41 @@ class PlayGame:
 
         # cells = self.current_block.rotations[self.current_block.rotation]
         # self.board.inside_board(cells) # initialise i, j for block
+       
+        white = (255, 255, 255)
+        title_font = pygame.font.SysFont("Courier", 50)
+        font = pygame.font.SysFont("Courier", 30)
+        font2 = pygame.font.SysFont("Courier", 20)
 
-        game_page.blit(self.title, (120, 20))
-        game_page.blit(self.group, (300, 70))
-        game_page.blit(self.next, (500, 50))
+        title = title_font.render("Tetris", True, white)
+        group = font2.render("Group 44", True, white)
+        next = font.render("Next Block: ", True, white)
+
+        game_page.blit(title, (120, 20))
+        game_page.blit(group, (300, 70))
+        game_page.blit(next, (500, 50))
         self.next_block.draw_block(game_page, 360, 40)
 
-        game_page.blit(self.score, (500, 250))
-        game_page.blit(self.score_value, (610, 250))
+        score = font.render("Score: ", True, white)
+        score_value = font.render(str(self.player_score), True, white)
 
-        game_page.blit(self.eliminate, (500, 400))
-        game_page.blit(self.eliminated, (810, 400))
+        game_page.blit(score, (500, 250))
+        game_page.blit(score_value, (610, 250))
 
-        game_page.blit(self.level, (500, 550))
-        game_page.blit(self.level_value, (610, 550))
+        eliminate = font.render("Eliminated Lines: ", True, white)
+        eliminated = font.render(str(self.eliminated_lines), True, white)
 
-        game_page.blit(self.info, (500, 650))
+        game_page.blit(eliminate, (500, 400))
+        game_page.blit(eliminated, (810, 400))
+
+        level = font.render("Level: ", True, white)
+        level_value = font.render(str(self.player_level), True, white)
+
+        game_page.blit(level, (500, 550))
+        game_page.blit(level_value, (610, 550))
+
+        info = font2.render("Game Details: Normal version, Player mode", True, white)  # display actual
+        game_page.blit(info, (500, 650))
 
     def block_falls(self):
         self.current_block.drop_block()
@@ -271,11 +270,13 @@ class PlayGame:
     #     self.current_block = self.next_block
     #     self.next_block = self.get_block()
 
-    def quit_game(self, game_page):
+    def quit_game(self):
 
         quit_screen = pygame.display.set_mode((1000, 700))
 
         red = (255, 0, 0)
+        white = (255, 255, 255)
+        font = pygame.font.SysFont("Courier", 30)
 
         quit_rect = pygame.Rect(250, 250, 600, 200)
         yes_rect = pygame.Rect(350, 390, 100, 30)
@@ -285,12 +286,17 @@ class PlayGame:
         pygame.draw.rect(quit_screen, (red), yes_rect)
         pygame.draw.rect(quit_screen, (red), no_rect)
 
+        quit_surface = font.render("Are you sure you want to quit?", True, white)
+        warning = font.render("Progress may be lost.", True, white)
+        yes = font.render("Quit", True, white)
+        no = font.render("Cancel", True, white)
+        
         while True:
 
-            quit_screen.blit(self.quit_surface, (300, 300))
-            quit_screen.blit(self.warning, (300, 330))
-            quit_screen.blit(self.yes, (350, 390))
-            quit_screen.blit(self.no, (600, 390))
+            quit_screen.blit(quit_surface, (300, 300))
+            quit_screen.blit(warning, (300, 330))
+            quit_screen.blit(yes, (350, 390))
+            quit_screen.blit(no, (600, 390))
             pygame.display.update()
 
             for event in pygame.event.get():
@@ -300,12 +306,3 @@ class PlayGame:
                         return True
                     elif no_rect.collidepoint(mouse):
                         return False
-
-
-
-
-
-
-
-
-
