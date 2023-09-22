@@ -2,7 +2,23 @@ import pygame
 import random
 import sys
 
-
+class BlockFactory:
+    @staticmethod
+    def create_block(block_type):
+        if block_type == "I":
+            return I()
+        elif block_type == "J":
+            return J()
+        elif block_type == "L":
+            return L()
+        elif block_type == "O":
+            return O()
+        elif block_type == "S":
+            return S()
+        elif block_type == "T":
+            return T()
+        elif block_type == "Z":
+            return Z()
 class Blocks:
     def __init__(self, block_num):
         self.board = GameBoard()
@@ -56,7 +72,7 @@ class Blocks:
         if not self.valid_space():
             self.rotation = old_rotation
 
-
+# Subclasses for each block type
 class I(Blocks):  # light blue
     def __init__(self):
         super().__init__(block_num=1)
@@ -164,11 +180,11 @@ class GameBoard:
 #   def inside_board(self, cells):
 #    for cell in cells:
 
-
+# PlayGame Class for managing the game
 class PlayGame:
     def __init__(self):
         self.board = GameBoard()
-        self.blocks = [I(), J(), L(), O(), S(), T(), Z()]
+        self.block_factory = BlockFactory()  # Create an instance of the BlockFactory
         self.current_block = self.get_block()
         self.next_block = self.get_block()
         self.board_filled = False
@@ -205,11 +221,11 @@ class PlayGame:
         self.no = self.font.render("Cancel", True, self.white)
 
     def get_block(self):
-        if len(self.blocks) == 0:  # if list is empty
-            self.blocks = [I(), J(), L(), O(), S(), T(), Z()]
-        new_block = random.choice(self.blocks)
-        self.blocks.remove(new_block)
-        return new_block
+        if not hasattr(self, 'blocks') or len(self.blocks) == 0:  # if list is empty or not defined
+            self.blocks = ["I", "J", "L", "O", "S", "T", "Z"]  # Use block type names
+        new_block_type = random.choice(self.blocks)
+        self.blocks.remove(new_block_type)
+        return self.block_factory.create_block(new_block_type)
 
     def draw_game(self, game_page):
         self.board.draw_board(game_page)
