@@ -12,11 +12,6 @@ class StartupPage:
     font = pygame.font.SysFont('Courier', 50, 'bold')
 
     def __init__(self):
-        self.start = 'Start'
-        self.scores = 'Scores'
-        self.configure = 'Configure'
-        self.exit = 'Exit'
-
         self.start = pygame.Rect(425, 440, 153, 50)
         self.scores = pygame.Rect(50, 600, 183, 50)
         self.configure = pygame.Rect(360, 600, 275, 50)
