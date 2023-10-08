@@ -31,8 +31,7 @@ class PlayGame:
         self.player_level = 0
 
         self.game_over = False
-      #  self.font = pygame.font.SysFont("Courier", 30)
-       # self.game_finished = self.font.render("GAME OVER", True, (255, 255, 255))
+
 
     def get_block(self):
         # return random type
