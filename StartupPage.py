@@ -1,7 +1,7 @@
 import pygame
 import sys
 import random
-from GamePage import *
+from GamePage import PlayGame
 
 pygame.init()
 
@@ -14,6 +14,14 @@ class StartupPage:
         self.scores = pygame.Rect(50, 600, 183, 50)
         self.configure = pygame.Rect(360, 600, 275, 50)
         self.exit = pygame.Rect(800, 600, 125, 50)
+        
+        # user game configurations
+        self.game_extension = False
+        self.AI = False
+        self.game_level = 1
+        # game board size 
+        self.board_length = 10
+        self.board_height = 20
 
     def draw_startup_page(self, start_page):
         pygame.display.set_caption('Welcome')
@@ -44,12 +52,11 @@ class StartupPage:
         if self.exit.collidepoint(mouse_pos):
             pygame.quit()
             sys.exit()
-        elif self.start.collidepoint(mouse_pos):
+        elif self.start.collidepoint(mouse_pos):    # GAME PLAY
             clock = pygame.time.Clock()  # start clock
             pygame.time.set_timer(pygame.USEREVENT, 300)
-
             run = True  # run game variable
-            game = PlayGame()
+            game = PlayGame(self.board_length, self.board_height, self.game_extension, self.AI, self.game_level)
             rotate_sound = pygame.mixer.Sound("can_rotate.wav")
             while run:
 
@@ -91,7 +98,7 @@ class StartupPage:
                         if event.key == pygame.K_LEFT:  # move left
                             game.move_block(False)
                         if event.key == pygame.K_UP:  # rotate
-                            game.current_block.rotate_block()
+                            game.rotate()
                             rotate_sound.play()
                         if event.key == pygame.K_DOWN:  # move down
                             game.block_falls()
@@ -99,8 +106,8 @@ class StartupPage:
                     if event.type == pygame.USEREVENT:
                         game.block_falls()
 
-               # if game.board_filled == True:
-                    #game.blit(game.game_over, (250, 250, 600, 200))
+                if game.game_over == True:
+                    run = False
 
                 pygame.display.update()
                 clock.tick(30)
