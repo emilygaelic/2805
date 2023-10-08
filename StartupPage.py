@@ -16,12 +16,12 @@ class StartupPage:
         self.exit = pygame.Rect(800, 600, 125, 50)
         
         # user game configurations
-        self.game_extension = False
+        self.gameExtension = False
         self.AI = False
-        self.game_level = 1
+        self.gameLevel = 1
         # game board size 
-        self.board_length = 10
-        self.board_height = 20
+        self.boardLength = 10
+        self.boardHeight = 20
 
     def draw_startup_page(self, start_page):
         pygame.display.set_caption('Welcome')
@@ -56,18 +56,18 @@ class StartupPage:
             clock = pygame.time.Clock()  # start clock
             pygame.time.set_timer(pygame.USEREVENT, 300)
             run = True  # run game variable
-            game = PlayGame(self.board_length, self.board_height, self.game_extension, self.AI, self.game_level)
+            game = PlayGame(self.boardLength, self.boardHeight, self.gameExtension, self.AI, self.gameLevel)
             rotate_sound = pygame.mixer.Sound("can_rotate.wav")
             while run:
 
                 # DISPLAY - fill screen with grid and surfaces
                 start_page.fill((0, 0, 0))  # black background
-                game.draw_game(start_page)
+                game.DrawGame(start_page)
 
                 # PLAYER ACTIONS
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:  # user quits
-                        if (game.quit_game()):
+                        if (self.QuitGame()):
                             run = False
                             sys.exit()
                         else:
@@ -75,7 +75,7 @@ class StartupPage:
 
                     if event.type == pygame.KEYDOWN:
                         if event.key == pygame.K_ESCAPE:  # quits with escape key
-                            if (game.quit_game()):
+                            if (self.QuitGame()):
                                 start_page.fill((255, 255, 255))
                                 from StartupPage import StartupPage
                                 startup_page = StartupPage()
@@ -94,19 +94,19 @@ class StartupPage:
                                 continue
 
                         if event.key == pygame.K_RIGHT:  # move right
-                            game.move_block(True)
+                            game.MoveBlock(True)
                         if event.key == pygame.K_LEFT:  # move left
-                            game.move_block(False)
+                            game.MoveBlock(False)
                         if event.key == pygame.K_UP:  # rotate
-                            game.rotate()
+                            game.Rotate()
                             rotate_sound.play()
                         if event.key == pygame.K_DOWN:  # move down
-                            game.block_falls()
+                            game.BlockFalls()
 
                     if event.type == pygame.USEREVENT:
-                        game.block_falls()
+                        game.BlockFalls()
 
-                if game.game_over == True:
+                if game.gameOver == True:
                     run = False
 
                 pygame.display.update()
@@ -149,3 +149,41 @@ class StartupPage:
             player_scores.sort(key=lambda x: x[1], reverse=True)
 
             HighscorePage.show_top_scores(player_scores, start_page)
+
+
+    def QuitGame(self):
+        # new quit screen for confirming game exit
+        quitScreen = pygame.display.set_mode((1000, 700))
+
+        red = (255, 0, 0)
+        white = (255, 255, 255)
+        font = pygame.font.SysFont("Courier", 30)
+
+        quit_rect = pygame.Rect(250, 250, 600, 200)
+        yes_rect = pygame.Rect(350, 390, 100, 30)
+        no_rect = pygame.Rect(600, 390, 100, 30)
+
+        pygame.draw.rect(quitScreen, (red), quit_rect)
+        pygame.draw.rect(quitScreen, (red), yes_rect)
+        pygame.draw.rect(quitScreen, (red), no_rect)
+
+        quit_surface = font.render("Are you sure you want to quit?", True, white)
+        warning = font.render("Progress may be lost.", True, white)
+        yes = font.render("Quit", True, white)
+        no = font.render("Cancel", True, white)
+        
+        while True:
+
+            quitScreen.blit(quit_surface, (300, 300))
+            quitScreen.blit(warning, (300, 330))
+            quitScreen.blit(yes, (350, 390))
+            quitScreen.blit(no, (600, 390))
+            pygame.display.update()
+
+            for event in pygame.event.get():
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    mouse = pygame.mouse.get_pos()
+                    if yes_rect.collidepoint(mouse):
+                        return True
+                    elif no_rect.collidepoint(mouse):
+                        return False
