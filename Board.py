@@ -30,11 +30,11 @@ class GameBoard:
         return [dark_grey, light_blue, blue, orange, purple, yellow, green, red]
 
     def DrawBoard(self, gamePage):
-        # draws the board on the screen  
+        # draws the board on the screen
         for i in range(self.rows): # for the size of the board
             for j in range(self.cols):
                 cellColour = self.grid[i][j] # check number on grid for which colour to draw
-                cellColours = self.Colours() # get colour 
+                cellColours = self.Colours() # get colour
                 # draw cell in colour assigned by grid number
                 pygame.draw.rect(gamePage, cellColours[cellColour], (
                     j * self.cell_size + 50, i * self.cell_size + 100, self.cell_size - 1, self.cell_size - 1))
@@ -71,8 +71,23 @@ class GameBoard:
 
     def LockBlock(self, cells, blockID): # lock block in grid
         # assign block position with block number on board
-        for i in range(len(cells)): 
+        for i in range(len(cells)):
             x = cells[i][0]
             y = cells[i][1]
             self.grid[x][y] = blockID
-        
+        self.eliminate()
+
+    def eliminate(self):
+        for i in self.grid:
+            count = 0
+            for j in self.grid:
+                if j != 0:
+                    count += 1
+                    if self.cols == count:
+                        self.grid.remove(i)
+                        new_row = []
+                        for j in self.rows:
+                            new_row.append(0)
+                        self.grid.append(new_row)
+        self.PrintBoard()
+
