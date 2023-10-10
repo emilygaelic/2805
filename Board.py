@@ -62,6 +62,11 @@ class GameBoard:
         for cell in cells:
             if cell[0] < 0 or cell[0] >= self.rows or cell[1] >= self.cols or cell[1] < 0:
                 return False
+            # Check if block has collaided with locked blocked
+            x = cell[0]
+            y = cell[1]
+            if self.grid[x][y] != 0:
+                return False
         return True
 
     def LockBlock(self, cells, blockID): # lock block in grid
