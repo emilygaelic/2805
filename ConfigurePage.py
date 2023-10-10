@@ -8,6 +8,8 @@ pygame.init()
 # Constants
 SCREEN_WIDTH = 900
 SCREEN_HEIGHT = 700
+SELECTED_COLOR = (173, 216, 239)  # Light Blue
+DEFAULT_COLOR = (255, 255, 255)  # White
 WHITE = (255, 255, 255)
 FONT = pygame.font.Font(None, 36)
 
@@ -38,13 +40,24 @@ class ConfigurePage:
     def draw_configure_page(self, screen):
         screen.fill(WHITE)
 
+        # Determine button colors based on user selections
+        size_10x20_color = SELECTED_COLOR if self.selected_size == "10x20" else pygame.Color('gray')
+        size_10x24_color = SELECTED_COLOR if self.selected_size == "10x24" else pygame.Color('gray')
+        easy_mode_color = SELECTED_COLOR if self.selected_level == "Easy" else pygame.Color('gray')
+        medium_mode_color = SELECTED_COLOR if self.selected_level == "Medium" else pygame.Color('gray')
+        hard_mode_color = SELECTED_COLOR if self.selected_level == "Hard" else pygame.Color('gray')
+        normal_mode_color = SELECTED_COLOR if self.game_mode == "Normal" else pygame.Color('gray')
+        extended_mode_color = SELECTED_COLOR if self.game_mode == "Extended" else pygame.Color('gray')
+        player_mode_color = SELECTED_COLOR if self.player_mode == "Player" else pygame.Color('gray')
+        ai_mode_color = SELECTED_COLOR if self.player_mode == "AI" else pygame.Color('gray')
+
         # Draw size buttons
         text = FONT.render("Field size:", True, pygame.Color('black'))
         screen.blit(text, (50, 110))
         size_10x20_text = FONT.render("10x20", True, pygame.Color('black'))
         size_10x24_text = FONT.render("10x24", True, pygame.Color('black'))
-        pygame.draw.rect(screen, pygame.Color('gray'), self.size_10x20_rect)
-        pygame.draw.rect(screen, pygame.Color('gray'), self.size_10x24_rect)
+        pygame.draw.rect(screen, size_10x20_color, self.size_10x20_rect)
+        pygame.draw.rect(screen, size_10x24_color, self.size_10x24_rect)
         pygame.draw.rect(screen, pygame.Color('black'), self.size_10x20_rect, 2)
         pygame.draw.rect(screen, pygame.Color('black'), self.size_10x24_rect, 2)
 
@@ -55,28 +68,25 @@ class ConfigurePage:
         text = FONT.render("Game level:", True, pygame.Color('black'))
         screen.blit(text, (50, 230))
 
-        pygame.draw.rect(screen, pygame.Color('gray'), self.easy_mode_rect)
-        pygame.draw.rect(screen, pygame.Color('gray'), self.medium_mode_rect)
-        pygame.draw.rect(screen, pygame.Color('gray'), self.hard_mode_rect)
+        pygame.draw.rect(screen, easy_mode_color, self.easy_mode_rect)
+        pygame.draw.rect(screen, medium_mode_color, self.medium_mode_rect)
+        pygame.draw.rect(screen, hard_mode_color, self.hard_mode_rect)
+
+        easy_text = FONT.render("Easy", True, pygame.Color('black'))
+        medium_text = FONT.render("Medium", True, pygame.Color('black'))
+        hard_text = FONT.render("Hard", True, pygame.Color('black'))
+
+        screen.blit(easy_text, (self.easy_mode_rect.x + 10, self.easy_mode_rect.y + 10))
+        screen.blit(medium_text, (self.medium_mode_rect.x + 10, self.medium_mode_rect.y + 10))
+        screen.blit(hard_text, (self.hard_mode_rect.x + 10, self.hard_mode_rect.y + 10))
+
         pygame.draw.rect(screen, pygame.Color('black'), self.easy_mode_rect, 2)
         pygame.draw.rect(screen, pygame.Color('black'), self.medium_mode_rect, 2)
         pygame.draw.rect(screen, pygame.Color('black'), self.hard_mode_rect, 2)
 
-        easy_text = FONT.render("Easy", True, pygame.Color('black'))
-        normal_text = FONT.render("Medium", True, pygame.Color('black'))
-        hard_text = FONT.render("Hard", True, pygame.Color('black'))
-
-        screen.blit(easy_text, (self.easy_mode_rect.x + 10, self.easy_mode_rect.y + 10))
-        screen.blit(normal_text, (self.medium_mode_rect.x + 10, self.medium_mode_rect.y + 10))
-        screen.blit(hard_text, (self.hard_mode_rect.x +10, self.hard_mode_rect.y + 10))
-
-        #game mode (normal/extended)
-        text = FONT.render("Game mode:", True, pygame.Color('black'))
-        screen.blit(text, (50, 340))
-
-        pygame.draw.rect(screen, pygame.Color('gray'), self.normal_mode_rect)
-        pygame.draw.rect(screen, pygame.Color('gray'), self.extended_mode_rect)
-
+        # Drawing the Game Mode buttons
+        pygame.draw.rect(screen, normal_mode_color, self.normal_mode_rect)
+        pygame.draw.rect(screen, extended_mode_color, self.extended_mode_rect)
         pygame.draw.rect(screen, pygame.Color('black'), self.normal_mode_rect, 2)
         pygame.draw.rect(screen, pygame.Color('black'), self.extended_mode_rect, 2)
 
@@ -86,13 +96,9 @@ class ConfigurePage:
         screen.blit(normal_text, (self.normal_mode_rect.x + 10, self.normal_mode_rect.y + 10))
         screen.blit(extended_text, (self.extended_mode_rect.x + 10, self.extended_mode_rect.y + 10))
 
-        #player mode (Player/AI)
-        text = FONT.render("Player mode:", True, pygame.Color('black'))
-        screen.blit(text, (50, 470))
-
-        pygame.draw.rect(screen, pygame.Color('gray'), self.player_mode_rect)
-        pygame.draw.rect(screen, pygame.Color('gray'), self.ai_mode_rect)
-
+        # Drawing the Player Mode buttons
+        pygame.draw.rect(screen, player_mode_color, self.player_mode_rect)
+        pygame.draw.rect(screen, ai_mode_color, self.ai_mode_rect)
         pygame.draw.rect(screen, pygame.Color('black'), self.player_mode_rect, 2)
         pygame.draw.rect(screen, pygame.Color('black'), self.ai_mode_rect, 2)
 
@@ -101,6 +107,11 @@ class ConfigurePage:
 
         screen.blit(player_text, (self.player_mode_rect.x + 10, self.player_mode_rect.y + 10))
         screen.blit(ai_text, (self.ai_mode_rect.x + 10, self.ai_mode_rect.y + 10))
+
+        #player mode label
+        text = FONT.render("Player mode:", True, pygame.Color('black'))
+        screen.blit(text, (50, 470))
+
 
         # Draw back button on the left side
         pygame.draw.rect(screen, pygame.Color('black'), self.back_button_rect)
@@ -119,38 +130,48 @@ class ConfigurePage:
         close_text = FONT.render("Close", True, pygame.Color('white'))
         screen.blit(close_text, (close_button_rect.x + 10, close_button_rect.y + 5))
 
+        # Draw the Start button
+        start_button_x = (SCREEN_WIDTH - 100) // 2  # Centered between Back and Close
+        self.start_button_rect = pygame.Rect(start_button_x, 650, 100, 30)
+        pygame.draw.rect(screen, pygame.Color('black'), self.start_button_rect)
+        start_text = FONT.render("Start", True, pygame.Color('white'))
+        screen.blit(start_text, (self.start_button_rect.x + 20, self.start_button_rect.y + 5))
 
     def handle_mouse_click(self, screen, mouse_pos):
+        # Handle board size buttons
         if self.size_10x20_rect.collidepoint(mouse_pos):
             self.selected_size = "10x20"
         elif self.size_10x24_rect.collidepoint(mouse_pos):
             self.selected_size = "10x24"
+
+        # Handle game level buttons
         elif self.easy_mode_rect.collidepoint(mouse_pos):
             self.selected_level = "Easy"
-            self.set_level("Easy")  # Call set_level to apply the selected level
-            self.start_game()
         elif self.medium_mode_rect.collidepoint(mouse_pos):
             self.selected_level = "Medium"
-            self.set_level("Medium")  # Call set_level to apply the selected level
-            self.start_game()
         elif self.hard_mode_rect.collidepoint(mouse_pos):
             self.selected_level = "Hard"
-            self.set_level("Hard")  # Call set_level to apply the selected level
-            self.start_game()
 
+        # Handle game mode buttons
         elif self.normal_mode_rect.collidepoint(mouse_pos):
             self.game_mode = "Normal"
         elif self.extended_mode_rect.collidepoint(mouse_pos):
             self.game_mode = "Extended"
+
+        # Handle player mode buttons
         elif self.player_mode_rect.collidepoint(mouse_pos):
             self.player_mode = "Player"
         elif self.ai_mode_rect.collidepoint(mouse_pos):
             self.player_mode = "AI"
+
+        # Handle system buttons
         elif self.close_button_rect.collidepoint(mouse_pos):
             pygame.quit()
             sys.exit()
+        elif self.start_button_rect.collidepoint(mouse_pos):
+            self.start_game()
         elif self.back_button_rect.collidepoint(mouse_pos):
-            screen.fill((255, 255, 255))
+            screen.fill(WHITE)
             from StartupPage import StartupPage
             startup_page = StartupPage()
             startup_page.draw_startup_page(screen)
@@ -163,65 +184,53 @@ class ConfigurePage:
                         mouse = pygame.mouse.get_pos()
                         startup_page.handle_mouse_click(screen, mouse)
                 pygame.display.flip()
+            return  # Exit the function after handling back button
+
+        # Redraw the configure page with updated selections
+        self.draw_configure_page(screen)
+        pygame.display.flip()
+
+    def get_board_size(self):
+        if self.selected_size == "10x20":
+            return 10, 20
+        elif self.selected_size == "10x24":
+            return 10, 24
+        return 10, 20
 
     def handle_level_change(self):
-        if self.selected_size == "10x20":
-            boardLength = 10
-            boardHeight = 20
-        elif self.selected_size == "10x24":
-            boardLength = 10
-            boardHeight = 24
-        else:
-            boardLength = 10
-            boardHeight = 20
-
+        boardLength, boardHeight = self.get_board_size()
         if self.play_game is None:
             self.play_game = PlayGame(boardLength, boardHeight, level=self.selected_level)
         else:
-            # Update the level of the existing game instance
             self.play_game.set_level(self.selected_level)
+
     def play_game_loop(self):
-        pygame.init()
         screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         pygame.display.set_caption("Tetris")
-
         running = True
         clock = pygame.time.Clock()
-
         while running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
                 # Handle other events as needed for your game
-
-            # Call the game's update and draw methods
             self.play_game.BlockFalls()
             self.play_game.MoveBlock(True)
             self.play_game.Rotate()  # Handle rotations
             self.play_game.DrawGame(screen)
-
             pygame.display.flip()
             clock.tick(60)  # Limit frame rate to 60 FPS
 
-        pygame.quit()
-        sys.exit()
-
     def set_level(self, level):
-        if self.play_game is not None:
+        self.selected_level = level
+        if self.play_game:
             self.play_game.handle_configuration(level)
 
     def start_game(self):
-        pygame.quit()  # Quit the configuration page
-        # Initialize and start the game page here
-        if self.selected_size == "10x20":
-            boardLength, boardHeight = 10, 20
-        elif self.selected_size == "10x24":
-            boardLength, boardHeight = 10, 24
-        else:
-            boardLength, boardHeight = 10, 20
-        # Initialize and start the game page here with the selected level
+        boardLength, boardHeight = self.get_board_size()
         self.play_game = PlayGame(boardLength, boardHeight, level=self.selected_level)
         self.play_game_loop()
+
 
 def main():
     pygame.init()
