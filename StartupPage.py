@@ -16,14 +16,17 @@ class StartupPage:
         self.exit = pygame.Rect(800, 600, 125, 50)
         
         # user game configurations
-        self.gameExtension = False
-        self.AI = False
-        self.gameLevel = 1
-        # game board size 
-        self.boardLength = 10
-        self.boardHeight = 20
+        self.gameExtension = True
+        self.AIMode = False
+        self.gameLevel = "Easy"# Set self.gameLevel to a string representing the desired difficulty level
 
-    def draw_startup_page(self, start_page):
+
+        # user chooses game length
+        self.boardSize = 10 # board length/number of columns 
+
+      #  self.AI = TetrisBeast(self.boardSize)
+
+    def DrawStartupPage(self, startPage):
         pygame.display.set_caption('Welcome')
         pic = pygame.image.load('TetrisLogo.png')
         font = pygame.font.SysFont('Courier', 50, 'bold')
@@ -35,65 +38,54 @@ class StartupPage:
         text2 = font.render('Exit', True, (0, 0, 0))
         text3 = font.render('Scores', True, (0, 0, 0))
         text4 = font.render('Configure', True, (0, 0, 0))
-        start_page.blit(pic, pic.get_rect(center=start_page.get_rect().center))
-        start_page.blit(yr, (430, 10))
-        start_page.blit(names, (250, 40))
-        pygame.draw.rect(start_page, (255, 0, 0), self.exit)
-        pygame.draw.rect(start_page, (255, 165, 0), self.configure)
-        pygame.draw.rect(start_page, (0, 255, 0), self.start)
-        pygame.draw.rect(start_page, (255, 255, 0), self.scores)
-        start_page.blit(text1, (self.start.x, self.start.y))
-        start_page.blit(text2, (self.exit.x, self.exit.y))
-        start_page.blit(text3, (self.scores.x, self.scores.y))
-        start_page.blit(text4, (self.configure.x, self.configure.y))
+        startPage.blit(pic, pic.get_rect(center=startPage.get_rect().center))
+        startPage.blit(yr, (430, 10))
+        startPage.blit(names, (250, 40))
+        pygame.draw.rect(startPage, (255, 0, 0), self.exit)
+        pygame.draw.rect(startPage, (255, 165, 0), self.configure)
+        pygame.draw.rect(startPage, (0, 255, 0), self.start)
+        pygame.draw.rect(startPage, (255, 255, 0), self.scores)
+        startPage.blit(text1, (self.start.x, self.start.y))
+        startPage.blit(text2, (self.exit.x, self.exit.y))
+        startPage.blit(text3, (self.scores.x, self.scores.y))
+        startPage.blit(text4, (self.configure.x, self.configure.y))
 
-    def handle_mouse_click(self, start_page, mouse_pos):
+
+    def HandleMouseClick(self, startPage, mousePos):
         pygame.display.set_caption('Tetris 44')
-        if self.exit.collidepoint(mouse_pos):
+        if self.exit.collidepoint(mousePos):
             pygame.quit()
             sys.exit()
-        elif self.start.collidepoint(mouse_pos):    # GAME PLAY
+       
+        elif self.start.collidepoint(mousePos):    # GAME PLAY
+
             clock = pygame.time.Clock()  # start clock
             pygame.time.set_timer(pygame.USEREVENT, 300)
             run = True  # run game variable
-
-            # Set self.gameLevel to a string representing the desired difficulty level
-            self.gameLevel = "Easy"  # Change this to the desired level ("Easy," "Medium," or "Hard")
-            game = PlayGame(self.boardLength, self.boardHeight, self.gameExtension, self.AI, self.gameLevel)
+            game = PlayGame(self.boardSize, self.gameExtension, self.AIMode, self.gameLevel)
             rotate_sound = pygame.mixer.Sound("can_rotate.wav")
+
             while run:
 
                 # DISPLAY - fill screen with grid and surfaces
-                start_page.fill((0, 0, 0))  # black background
-                game.DrawGame(start_page)
-
+                startPage.fill((0, 0, 0))  # black background
+                game.DrawGame(startPage)
+                
                 # PLAYER ACTIONS
-                for event in pygame.event.get():
+                for event in list(pygame.event.get()): #+ self.AI.RunAI():
+
                     if event.type == pygame.QUIT:  # user quits
                         if (self.QuitGame()):
                             run = False
                             sys.exit()
                         else:
                             continue
-
                     if event.type == pygame.KEYDOWN:
                         if event.key == pygame.K_ESCAPE:  # quits with escape key
                             if (self.QuitGame()):
-                                start_page.fill((255, 255, 255))
-                                from StartupPage import StartupPage
-                                startup_page = StartupPage()
-                                startup_page.draw_startup_page(start_page)
-                                while True:
-                                    for event in pygame.event.get():
-                                        if event.type == pygame.QUIT:
-                                            pygame.quit()
-                                            sys.exit()
-                                        elif event.type == pygame.MOUSEBUTTONDOWN:
-                                            mouse = pygame.mouse.get_pos()
-                                            startup_page.handle_mouse_click(start_page, mouse)
-                                    pygame.display.flip()
+                                run = False
+                                sys.exit()
                             else:
-                                print("continue")
                                 continue
 
                         if event.key == pygame.K_RIGHT:  # move right
@@ -115,13 +107,13 @@ class StartupPage:
                 pygame.display.update()
                 clock.tick(30)
 
-        elif self.configure.collidepoint(mouse_pos):
 
+        elif self.configure.collidepoint(mousePos):
             from ConfigurePage import ConfigurePage
             configure_page = ConfigurePage()
-            start_page.fill((255, 255, 255))
+            startPage.fill((255, 255, 255))
             pygame.display.set_caption("Tetris Setting")
-            configure_page.draw_configure_page(start_page)
+            configure_page.draw_configure_page(startPage)
             pygame.mixer.music.load("background.wav")
             pygame.mixer.music.play(-1)
             while True:
@@ -130,14 +122,15 @@ class StartupPage:
                         pygame.quit()
                         sys.exit()
                     elif e.type == pygame.MOUSEBUTTONDOWN:
-                        mouse_pos = pygame.mouse.get_pos()
-                        configure_page.handle_mouse_click(start_page, mouse_pos)
+                        mousePos = pygame.mouse.get_pos()
+                        configure_page.HandleMouseClick(startPage, mousePos)
 
                 pygame.display.flip()
                 clock = pygame.time.Clock()
                 clock.tick(30)
 
-        elif self.scores.collidepoint(mouse_pos):
+
+        elif self.scores.collidepoint(mousePos):
             from TopscorePage import HighscorePage
             pygame.display.set_caption('Top Scores')
 
@@ -151,7 +144,7 @@ class StartupPage:
             # sort scores in desc order
             player_scores.sort(key=lambda x: x[1], reverse=True)
 
-            HighscorePage.show_top_scores(player_scores, start_page)
+            HighscorePage.show_top_scores(player_scores, startPage)
 
 
     def QuitGame(self):
