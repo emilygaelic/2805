@@ -51,20 +51,18 @@ class GameBoard:
                         blockPosition.append([i, j + center])
         return blockPosition
 
+    def InsideBoard(self, cells):
+        # Check if cells is a single coordinate (integer)
+        if isinstance(cells, int):
+            x = cells
+            y = cells
+            return x >= 0 and x < self.rows and y >= 0 and y < self.cols
 
-    def InsideBoard(self, cells): 
-        for cell in cells: 
-            # check if block in on grid
-            if (cell[0] >= self.rows) or (cell[1] >= self.cols or cell[1] < 0):
-                return False # block is outside grid
-            
-            # block has collaided with locked blocked
-            x = cell[0]
-            y = cell[1]
-            if self.grid[x][y] != 0:
+        # Check if cells is a list of coordinates
+        for cell in cells:
+            if cell[0] < 0 or cell[0] >= self.rows or cell[1] >= self.cols or cell[1] < 0:
                 return False
-        return True # block is within grid
-
+        return True
 
     def LockBlock(self, cells, blockID): # lock block in grid
         # assign block position with block number on board

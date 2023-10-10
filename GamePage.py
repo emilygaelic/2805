@@ -4,22 +4,34 @@ import sys
 
 from Blocks import *
 from Board import GameBoard
+
+# Define level speeds globally
+level_speeds = {
+    "Easy": 1,    # Adjust the speed as needed
+    "Medium": 2,
+    "Hard": 3
+}
  
 # PlayGame Class for managing the game
 class PlayGame:
-    def __init__(self, boardLength, boardHeight, extension = False, AI = False, level = 1):
+    def __init__(self, boardLength, boardHeight, extension=False, AI=False, level="Easy"):
+        self.level = level
+        self.set_dropping_speed()
         self.length = boardLength
         self.height = boardHeight
 
-        self.centre = (self.length // 2) * 30 - 10 # *30 for cell size, -10 for grid offset
+        # Add the counter attribute and initialize it to 0
+        self.counter = 0
+
+        self.centre = (self.length // 2) * 30 - 10  # *30 for cell size, -10 for grid offset
         self.x = self.centre
         self.y = 100
 
         self.board = GameBoard(boardLength, boardHeight)
         self.blockFactory = BlockFactory()  # Create an instance of the BlockFactory
-        self.currentBlock = self.GetBlock() # block to fall
+        self.currentBlock = self.GetBlock()  # block to fall
         self.currentBlockID = self.currentBlock.GetBlockID()
-        self.nextBlock = self.GetBlock() # next block to display to player 
+        self.nextBlock = self.GetBlock()  # next block to display to the player
         self.nextBlockID = self.nextBlock.GetBlockID()
 
         self.newBlock = True
@@ -29,9 +41,22 @@ class PlayGame:
         self.playerScore = 0
         self.eliminatedLines = 0
         self.playerLevel = 0
-
         self.gameOver = False
 
+    def set_dropping_speed(self):
+        if self.level == "Easy":
+            self.dropping_speed = 1  # Adjust this value to make it slower or faster
+        elif self.level == "Medium":
+            self.dropping_speed = 2  # Adjust this value
+        elif self.level == "Hard":
+            self.dropping_speed = 3  # Adjust this value
+        else:
+            self.dropping_speed = 1  # Default to "Easy" level
+
+    def handle_configuration(self, level="Medium"):
+        # This method should be called when the player is configuring the game level
+        self.level = level
+        self.set_dropping_speed()
 
     def GetBlock(self):
         # return random type
@@ -93,25 +118,30 @@ class PlayGame:
     def BlockFalls(self):
         self.currentBlock.DropBlock() # move block down
 
-        for pos in self.blockPosition:# change block position
-            pos[0] += 1
+        # Counter to control block movement speed
+        self.counter += 1
+        if self.counter >= self.dropping_speed:
+            self.counter = 0
 
-        if (self.board.InsideBoard(self.blockPosition) == False): # if block out of bounds (OOB)
-            for pos in self.blockPosition: # change block position back
-                pos[0] -= 1
-            
-            # block stops, player gets next block
-            self.board.LockBlock(self.blockPosition, self.currentBlock.GetBlockID()) # lock block in position
-            # check if game is over
-            for cell in self.blockPosition:
-                if cell[0] == 0:
-                    print("Game Over\n")
-                    self.gameOver = True
-            self.newBlock = True
-            self.currentBlock = self.nextBlock # get next block
-            self.currentBlockID = self.currentBlock.GetBlockID()
-            self.nextBlock = self.GetBlock() # get new block
-            self.nextBlockID = self.nextBlock.GetBlockID()
+            for pos in self.blockPosition: # change block position
+                pos[0] += 1
+
+            if not self.board.InsideBoard(self.blockPosition): # if block out of bounds (OOB)
+                for pos in self.blockPosition: # change block position back
+                    pos[0] -= 1
+
+                # block stops, player gets next block
+                self.board.LockBlock(self.blockPosition, self.currentBlock.GetBlockID()) # lock block in position
+                # check if game is over
+                for cell in self.blockPosition:
+                    if cell[0] == 0:
+                        print("Game Over\n")
+                        self.gameOver = True
+                self.newBlock = True
+                self.currentBlock = self.nextBlock # get next block
+                self.currentBlockID = self.currentBlock.GetBlockID()
+                self.nextBlock = self.GetBlock() # get new block
+                self.nextBlockID = self.nextBlock.GetBlockID()
 
 
     def MoveBlock(self, direction):
@@ -139,17 +169,41 @@ class PlayGame:
                 for pos in self.blockPosition: # change block position back
                     pos[1] += 1
 
-
     def Rotate(self):
-        rotation = self.currentBlock.RotateBlock() # rotate block
-        
-        for i in range(len(self.blockPosition)): # change block position on grid
-            for j in range(len(self.blockPosition[i])):
-                self.blockPosition[i][j] += rotation[i][j]
+        rotation = self.currentBlock.RotateBlock()  # rotate block
+        print("Rotation Matrix:")
+        for row in rotation:
+            print(row)
 
-        if (self.board.InsideBoard(self.blockPosition) == False): # if block OOB
-            self.currentBlock.UndoRotation() # undo move
-            # PLAY ERROR NOISE
-            for i in range(len(self.blockPosition)): # change block position back
-                for j in range(len(self.blockPosition[i])):
-                    self.blockPosition[i][j] -= rotation[i][j]
+        # Create a copy of the current block position
+        new_block_position = [list(cell) for cell in self.blockPosition]
+
+        # Check if the rotation would result in out-of-bounds positions
+        for i in range(len(self.blockPosition)):
+            for j in range(len(self.blockPosition[i])):
+                current_x, current_y = self.blockPosition[i][j]
+                rotation_x, rotation_y = rotation[i][j]
+                new_x = current_x + rotation_x
+                new_y = current_y + rotation_y
+                if not self.board.InsideBoard([[new_x, new_y]]):
+                    # Rotation would result in an out-of-bounds position, so undo the rotation
+                    self.currentBlock.UndoRotation()  # undo move
+                    print("Rotation is out of bounds.")
+                    return  # Exit the function without updating the block position
+                # Update the new block position
+                self.blockPosition[i][j][0] = new_x
+                self.blockPosition[i][j][1] = new_y
+
+        # If all positions are inside the board, apply the rotation
+        self.blockPosition = new_block_position
+        print("Block Position after Rotation:")
+        for cell in self.blockPosition:
+            print(cell)
+
+    def handle_configuration(self):  # Handle level configuration
+        self.level = "Medium"
+        self.speed = level_speeds[self.level]
+
+        # If the player selects "Hard" level:
+        self.level = "Hard"
+        self.speed = level_speeds[self.level]

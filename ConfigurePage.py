@@ -1,3 +1,4 @@
+from GamePage import PlayGame
 import pygame
 import sys
 
@@ -13,7 +14,7 @@ FONT = pygame.font.Font(None, 36)
 
 class ConfigurePage:
     def __init__(self):
-        self.selected_size = "10*20"
+        self.selected_size = "10x20"
         self.game_lines = 0
         self.selected_level = "Easy"
         self.game_mode = "Normal"
@@ -31,6 +32,8 @@ class ConfigurePage:
         self.ai_mode_rect = pygame.Rect(300, 520, 200, 50)
         self.close_button_rect = pygame.Rect(750, 650, 100, 30)
         self.back_button_rect = pygame.Rect(50, 650, 100, 30)
+        self.play_game = None
+
 
     def draw_configure_page(self, screen):
         screen.fill(WHITE)
@@ -116,6 +119,7 @@ class ConfigurePage:
         close_text = FONT.render("Close", True, pygame.Color('white'))
         screen.blit(close_text, (close_button_rect.x + 10, close_button_rect.y + 5))
 
+
     def handle_mouse_click(self, screen, mouse_pos):
         if self.size_10x20_rect.collidepoint(mouse_pos):
             self.selected_size = "10x20"
@@ -123,10 +127,17 @@ class ConfigurePage:
             self.selected_size = "10x24"
         elif self.easy_mode_rect.collidepoint(mouse_pos):
             self.selected_level = "Easy"
+            self.set_level("Easy")  # Call set_level to apply the selected level
+            self.start_game()
         elif self.medium_mode_rect.collidepoint(mouse_pos):
             self.selected_level = "Medium"
+            self.set_level("Medium")  # Call set_level to apply the selected level
+            self.start_game()
         elif self.hard_mode_rect.collidepoint(mouse_pos):
             self.selected_level = "Hard"
+            self.set_level("Hard")  # Call set_level to apply the selected level
+            self.start_game()
+
         elif self.normal_mode_rect.collidepoint(mouse_pos):
             self.game_mode = "Normal"
         elif self.extended_mode_rect.collidepoint(mouse_pos):
@@ -153,9 +164,89 @@ class ConfigurePage:
                         startup_page.handle_mouse_click(screen, mouse)
                 pygame.display.flip()
 
+    def handle_level_change(self):
+        if self.selected_size == "10x20":
+            boardLength = 10
+            boardHeight = 20
+        elif self.selected_size == "10x24":
+            boardLength = 10
+            boardHeight = 24
+        else:
+            boardLength = 10
+            boardHeight = 20
 
+        if self.play_game is None:
+            self.play_game = PlayGame(boardLength, boardHeight, level=self.selected_level)
+        else:
+            # Update the level of the existing game instance
+            self.play_game.set_level(self.selected_level)
+    def play_game_loop(self):
+        pygame.init()
+        screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+        pygame.display.set_caption("Tetris")
 
+        running = True
+        clock = pygame.time.Clock()
 
+        while running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                # Handle other events as needed for your game
 
+            # Call the game's update and draw methods
+            self.play_game.BlockFalls()
+            self.play_game.MoveBlock(True)
+            self.play_game.Rotate()  # Handle rotations
+            self.play_game.DrawGame(screen)
 
+            pygame.display.flip()
+            clock.tick(60)  # Limit frame rate to 60 FPS
 
+        pygame.quit()
+        sys.exit()
+
+    def set_level(self, level):
+        if self.play_game is not None:
+            self.play_game.handle_configuration(level)
+
+    def start_game(self):
+        pygame.quit()  # Quit the configuration page
+        # Initialize and start the game page here
+        if self.selected_size == "10x20":
+            boardLength, boardHeight = 10, 20
+        elif self.selected_size == "10x24":
+            boardLength, boardHeight = 10, 24
+        else:
+            boardLength, boardHeight = 10, 20
+        # Initialize and start the game page here with the selected level
+        self.play_game = PlayGame(boardLength, boardHeight, level=self.selected_level)
+        self.play_game_loop()
+
+def main():
+    pygame.init()
+    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    pygame.display.set_caption("Tetris")
+
+    configure_page = ConfigurePage()
+
+    running = True
+    clock = pygame.time.Clock()
+
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = pygame.mouse.get_pos()
+                configure_page.handle_mouse_click(screen, mouse_pos)
+
+        configure_page.draw_configure_page(screen)
+        pygame.display.flip()
+        clock.tick(60)  # Limit frame rate to 60 FPS
+
+    pygame.quit()
+    sys.exit()
+
+if __name__ == "__main__":
+    main()

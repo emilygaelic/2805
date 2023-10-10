@@ -56,6 +56,9 @@ class StartupPage:
             clock = pygame.time.Clock()  # start clock
             pygame.time.set_timer(pygame.USEREVENT, 300)
             run = True  # run game variable
+
+            # Set self.gameLevel to a string representing the desired difficulty level
+            self.gameLevel = "Easy"  # Change this to the desired level ("Easy," "Medium," or "Hard")
             game = PlayGame(self.boardLength, self.boardHeight, self.gameExtension, self.AI, self.gameLevel)
             rotate_sound = pygame.mixer.Sound("can_rotate.wav")
             while run:
