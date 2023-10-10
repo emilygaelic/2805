@@ -2,10 +2,10 @@ import pygame
 
 # GameBoard class for managing the board
 class GameBoard:
-    def __init__(self, length, height):
+    def __init__(self, boardSize):
         # board size (((pass in as parameters)))
-        self.rows = height #20
-        self.cols = length #10
+        self.rows = 20 #20
+        self.cols = boardSize #10
         self.cell_size = 30 # size of grid cells
         self.grid = [[0 for j in range(self.cols)] for i in range(self.rows)]
 
@@ -15,7 +15,7 @@ class GameBoard:
         for i in range(self.rows):
             for j in range(self.cols):
                 print(self.grid[i][j], end=" ")
-            print("\n")
+            print("\n\n\n")
 
     def Colours(self):
         # colour configurations
@@ -30,11 +30,11 @@ class GameBoard:
         return [dark_grey, light_blue, blue, orange, purple, yellow, green, red]
 
     def DrawBoard(self, gamePage):
-        # draws the board on the screen
+        # draws the board on the screen  
         for i in range(self.rows): # for the size of the board
             for j in range(self.cols):
                 cellColour = self.grid[i][j] # check number on grid for which colour to draw
-                cellColours = self.Colours() # get colour
+                cellColours = self.Colours() # get colour 
                 # draw cell in colour assigned by grid number
                 pygame.draw.rect(gamePage, cellColours[cellColour], (
                     j * self.cell_size + 50, i * self.cell_size + 100, self.cell_size - 1, self.cell_size - 1))
@@ -51,6 +51,7 @@ class GameBoard:
                         blockPosition.append([i, j + center])
         return blockPosition
 
+    
     def InsideBoard(self, cells):
         # Check if cells is a single coordinate (integer)
         if isinstance(cells, int):
@@ -69,25 +70,12 @@ class GameBoard:
                 return False
         return True
 
+    
     def LockBlock(self, cells, blockID): # lock block in grid
         # assign block position with block number on board
-        for i in range(len(cells)):
+        for i in range(len(cells)): 
             x = cells[i][0]
             y = cells[i][1]
             self.grid[x][y] = blockID
-        self.eliminate()
-
-    def eliminate(self):
-        for i in self.grid:
-            count = 0
-            for j in self.grid:
-                if j != 0:
-                    count += 1
-                    if self.cols == count:
-                        self.grid.remove(i)
-                        new_row = []
-                        for j in self.rows:
-                            new_row.append(0)
-                        self.grid.append(new_row)
-        self.PrintBoard()
-
+        
+        self.PrintBoard() # print board
