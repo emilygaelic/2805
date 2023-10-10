@@ -68,7 +68,7 @@ class Blocks:
             newPosition.append(new)
         return newPosition
 
-    def undo_rotation(self):
+    def UndoRotation(self):
         self.rotation = (self.rotation - 1) % len(self.rotations)
 
 
