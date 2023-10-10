@@ -11,8 +11,8 @@ def main():
     win = pygame.display.set_mode((1000, 700))
     pygame.mouse.set_visible(1)
     win.fill((255, 255, 255))
-    startup_page = StartupPage()
-    startup_page.draw_startup_page(win)
+    startupPage = StartupPage()
+    startupPage.DrawStartupPage(win)
     go = True
     # start page
     while go:
@@ -22,7 +22,7 @@ def main():
                 sys.exit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 mouse = pygame.mouse.get_pos()
-                startup_page.handle_mouse_click(win, mouse)
+                startupPage.HandleMouseClick(win, mouse)
 
         pygame.display.flip()
     pygame.quit()
