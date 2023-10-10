@@ -19,12 +19,16 @@ class BlockFactory:
             return T()
         elif blockType == "Z":
             return Z()
+        elif blockType == "Ex_I":
+            return Ex_I()
+        elif blockType == "Ex_J":
+            return Ex_J()
 
 class Blocks:
     # parent class for all blocks
     def __init__(self, blockID):
-        self.cellSize = 30
-        self.block = blockID  # block id number  
+        self.cellSize = 30 # size of grid cells
+        self.block = blockID  # block ID number  
         self.rotation = 0 # defines current rotation of block
         self.x = 0 # tracks current block's x axis location
         self.y = 0 # tracks current block's y axis location
@@ -145,3 +149,23 @@ class Z(Blocks):  # red
             1: [[0, 2], [1, 1], [1, 2], [2, 1]],
         }
 
+
+class Ex_I(Blocks):  # light blue
+    def __init__(self):
+        super().__init__(blockID=1) # block number 1
+        # defines the grid position of block for each rotation
+        self.rotations = {
+            0: [[0, 1], [1, 1], [2, 1]],
+            1: [[1, 0], [1, 1], [1, 2]]
+        }
+
+
+class Ex_J(Blocks):  # blue
+    def __init__(self):
+        super().__init__(blockID=2) # block number 2
+        self.rotations = {
+            0: [[0, 0], [1, 0], [1, 1]], 
+            1: [[0, 0], [0, 1], [1, 0]],
+            2: [[0, 0], [0, 1], [1, 1]],
+            3: [[0, 1], [1, 0], [1, 1]]
+        }
