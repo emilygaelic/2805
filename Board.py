@@ -1,13 +1,17 @@
 import pygame
 
 class GameBoard:
-    def __init__(self, rows=20, cols=10, cell_size=30): # updated rows to 24 and cols to 10
+    def __init__(self, boardWidth): # updated rows to 24 and cols to 10
         # Board dimensions
-        self.rows = rows
-        self.cols = cols
-        self.cell_size = cell_size
+        
+        self.cols = boardWidth
+        self.rows = 20
+        self.cellSize = 30
         self.grid = [[0 for j in range(self.cols)] for i in range(self.rows)]
 
+    def GetBoard(self):
+        return self.grid
+    
     def PrintBoard(self):
         # Display the game board in the console
         for i in range(self.rows):
@@ -35,8 +39,9 @@ class GameBoard:
             for j in range(self.cols):
                 cellColour = self.grid[i][j]
                 pygame.draw.rect(gamePage, self.Colours()[cellColour], (
-                    j * self.cell_size + 50, i * self.cell_size + 50,
-                    self.cell_size - 1, self.cell_size - 1))
+                    j * self.cellSize + 50, i * self.cellSize + 100,
+                    self.cellSize - 1, self.cellSize - 1))
+    
     def PlaceBlock(self, blockCells):
         # Determine initial position for a new block
         blockPosition = []
@@ -57,10 +62,13 @@ class GameBoard:
     def LockBlock(self, cells, blockID):
         # Assign the block cells to the grid and remove full rows if any
         for cell in cells:
+            print(cell[0], cell[1])
             self.grid[cell[0]][cell[1]] = blockID
         removed_lines = self.RemoveFullRows()
 
         return removed_lines
+    
+    
     def RemoveFullRows(self):
         # Check and remove full rows
         rows_to_remove = []
