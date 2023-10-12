@@ -17,13 +17,11 @@ class StartupPage:
         
         # user game configurations
         self.gameExtension = True
-        self.AiMode = True
+        self.AiMode = False
         self.gameLevel = "Easy"  # Set self.gameLevel to a string representing the desired difficulty level
 
         # user chooses game length
-        self.boardSize = 10 # board length/number of columns 
-
-      #  self.AI = TetrisBeast(self.boardSize)
+        self.boardSize = 10 # board width
 
     def DrawStartupPage(self, startPage):
         pygame.display.set_caption('Welcome')
@@ -170,16 +168,16 @@ class StartupPage:
             pygame.display.set_caption('Top Scores')
 
             # Generate random player scores
-            player_scores = [(f'Player {i}', random.randint(15000, 25000)) for i in range(1, 11)]
+            # player_scores = [(f'Player {i}', random.randint(15000, 25000)) for i in range(1, 11)]
 
-            # Score range between 15000-25000
-            player_scores[0] = ('Player 1', 25000)
-            player_scores[-1] = ('Player 10', 15000)
+            # # Score range between 15000-25000
+            # player_scores[0] = ('Player 1', 25000)
+            # player_scores[-1] = ('Player 10', 15000)
 
-            # sort scores in desc order
-            player_scores.sort(key=lambda x: x[1], reverse=True)
+            # # sort scores in desc order
+            # player_scores.sort(key=lambda x: x[1], reverse=True)
 
-            HighscorePage.show_top_scores(player_scores, startPage)
+            HighscorePage.ShowTopScores(startPage)
 
     def QuitGame(self):
         # new quit screen for confirming game exit
