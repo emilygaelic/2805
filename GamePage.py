@@ -189,39 +189,32 @@ class PlayGame:
 
         # # Game Display from the 1st version (dynamic positioning)
         # offsetX = (self.boardWidth + 2) * self.board.cellSize + 20
-
         # title = titleFont.render("Tetris", True, white)
         # group = font2.render("Group 44", True, white)
         # gamePage.blit(title, (offsetX, 20))
         # gamePage.blit(group, (offsetX, 70))
-
         # spacing = 50  # Vertical spacing
         # next_offset = 140
         # score_offset = next_offset + spacing * 3 + 20
         # eliminate_offset = score_offset + spacing * 2 + 20
         # level_offset = eliminate_offset + spacing * 2 + 20
         # info_offset = level_offset + spacing * 2
-
         # next = font.render("Next Block: ", True, white)
         # gamePage.blit(next, (offsetX, next_offset))
         # nextBlockColour = colours[self.nextBlockID]
         # self.nextBlock.DrawBlock(gamePage, nextBlockColour, offsetX, next_offset + spacing)
-
         # score = font.render("Score: ", True, white)
         # scoreValue = font.render(str(self.playerScore), True, white)
         # gamePage.blit(score, (offsetX, score_offset))
         # gamePage.blit(scoreValue, (offsetX + 110, score_offset))
-
         # eliminate = font.render("Eliminated Lines:", True, white)
         # eliminated = font.render(str(self.eliminatedLines), True, white)
         # gamePage.blit(eliminate, (offsetX, eliminate_offset))
         # gamePage.blit(eliminated, (offsetX + 310, eliminate_offset))
-
         # level = font.render("Level: ", True, white)
         # levelValue = font.render(str(self.playerLevel), True, white)
         # gamePage.blit(level, (offsetX, level_offset))
         # gamePage.blit(levelValue, (offsetX + 110, level_offset))
-
         # info = font2.render("Game Details: Normal version, Player mode", True, white)
         # gamePage.blit(info, (offsetX, info_offset))
 
@@ -233,10 +226,14 @@ class PlayGame:
             self.counter = 0
 
             # Make a tentative move by moving the block down
-            movedPosition = [[pos[0] + 1, pos[1]] for pos in self.blockPosition]
+            #movedPosition = [[pos[0] + 1, pos[1]] for pos in self.blockPosition]
+            for pos in self.blockPosition: # change block position
+                pos[0] += 1
 
             # If block can't move down, lock the block in place
-            if not self.board.IsValidPosition(movedPosition):
+            if not self.board.IsValidPosition(self.blockPosition):
+                for pos in self.blockPosition: # change block position back
+                    pos[0] -= 1
 
                 removed_lines = self.board.LockBlock(self.blockPosition, self.currentBlock.GetBlockID())
 
@@ -249,6 +246,7 @@ class PlayGame:
                 # Game over check
                 for cell in self.blockPosition:
                     if cell[0] == 0:
+                        print("Game Over\n")
                         self.gameOver = True
                         action = self.GameOverScreen()  # Not present in the 2nd version but retained from the 1st
                         if action == "QUIT":
@@ -265,11 +263,8 @@ class PlayGame:
                 self.nextBlock = self.GetBlock()
                 self.nextBlockID = self.nextBlock.GetBlockID()
 
-                # Reset the block's starting position
-                # self.x = (self.boardWidth // 2) * self.board.cellSize - (self.board.cellSize // 2)
-            #     self.y = 0
-            else:
-                self.blockPosition = movedPosition
+            #else:
+             #   self.blockPosition = movedPosition
 
     def MoveBlock(self, direction):
         if direction == True:  # Move block right
@@ -383,4 +378,3 @@ class PlayGame:
                 return scores
         except FileNotFoundError:
             return []
-
