@@ -1,9 +1,10 @@
 import copy
 
 class TetrisBeast:
-    def __init__(self, boardLength):
-        self.height = 20
+    def __init__(self, boardLength, boardHeight):
+        
         self.length = boardLength # 10
+        self.height = boardHeight #20
         self.board = None
         self.block1 = None
         self.block2 = None
@@ -12,13 +13,17 @@ class TetrisBeast:
         self.bestRotation = None
         self.bestOffset = None
 
-        self.weights = [0.39357083734159515, -1.8961941343266449, -5.107694873375318, -3.6314963941589093, -2.9262681134021786, -2.146136640641482, -7.204192964669836, -3.476853402227247, -6.813002842291903, 4.152001386170861, -21.131715861293525, -10.181622180279133, -5.351108175564556, -2.6888972099986956, -2.684925769670947, -4.504495386829769, -7.4527302422826, -6.3489634714511505, -4.701455626343827, -10.502314845278828, 0.6969259450910086, -4.483319180395864, -2.471375907554622, -6.245643268054767, -1.899364785170105, -5.3416512085013395, -4.072687054171711, -5.936652569831475, -2.3140398163110643, -4.842883337741306, 17.677262456993276, -4.42668539845469, -6.8954976464473585, 4.481308299774875]
-    
+        self.A =  -3.7 # height multiplier
+        self.B =  +2.0 # clear
+        self.C = -4.0 # hole
+        self.D = -0.8 # blockade
+
     def PrintBoard(self):
         # prints game board
         for i in range(self.height):
             for j in range(self.length):
-                print(self.board[i][j], end=" ")
+                #print(self.board[i][j], end=" ")
+                print("(", i, j, ")", end=" ")
             print("\n")
         print("\n")
 
@@ -28,6 +33,17 @@ class TetrisBeast:
                 return self.height - i
         return 0
 
+    def CountBlockages(self, col):
+        blockCount = 0
+        block = None
+        for j in range(self.length):
+            for i in range(self.height - col):
+                if self.board[i][col] != 0:
+                    if block is None or block != self.board[i][j]:
+                        block = self.board[i][j]
+                        blockCount += 1
+        return blockCount
+    
     def Heuristics(self):
         heights = [] # get current height of blocks on board 
         for j in range(self.length): # for each column
@@ -35,6 +51,7 @@ class TetrisBeast:
 
         heightSum = sum(heights) # aggregate height
 
+        blockages = [] # number of blocks above each holes
         # find number of holes
         holes = []
         for j in range(self.length): # for each column
@@ -42,26 +59,30 @@ class TetrisBeast:
             for i in range(self.height): # find height of column
                 if self.board[i][j] == 0 and (self.height - i < heights[j]): # if there is a hole in column
                     holeCount += 1
-            holes.append(holeCount) 
+                    # count how many blocks above it
+                    blockages.append(self.CountBlockages(j))
 
-        # find bumpiness of board
-        bumps = []
-        for i in range(len(heights)-1): # for each column height
-            bumps.append(abs(heights[i] - heights[i+1])) # find differences in height
+            holes.append(holeCount) 
+        holeCount = sum(holes)
+        blockagesCount = sum(blockages)
 
         # check if lines are completed
-        lines = 0
+        linesCleared = 0 # complete lines
         for i in range(self.height):
             if 0 not in self.board[i]:
-                lines += 1
+                linesCleared += 1
 
-        maxHeight = max(heights)
-        minHeight = min(heights)
-        maxDepth = maxHeight - minHeight
+        # +3.0 for each edge touching another block
+        # +3.5 for each edge touching the wall
+        # +2.0 for each edge touching the floor
 
         # calculate heuristic
-        result = heights + [heightSum] + holes + bumps + [lines, maxDepth, maxHeight, minHeight]
-        return result
+        score = ( self.A * heightSum 
+                + self.B * linesCleared 
+                + self.C * holeCount 
+                + self.D * blockagesCount)
+        print(score)
+        return score
 
     def ScorePosition(self, block, xOffset, rotation):
         blockLen = block[-1][1] + 1
@@ -69,7 +90,7 @@ class TetrisBeast:
 
         if xOffset + blockLen > self.length or xOffset < 0:  # block doesn't fit in board
             return
-        
+
         # add x offset to block
         for coord in block: 
             coord[1] += xOffset 
@@ -92,10 +113,10 @@ class TetrisBeast:
             self.board[x][y] = 8
 
         # score position based on board holes, bumpiness, lines cleared 
-        score = sum([a*b for a,b in zip(self.Heuristics(), self.weights)])
+        score = self.Heuristics()
 
         # update best score if necessary
-        if self.bestScore == None or self.bestScore < score:
+        if self.bestScore == None or self.bestScore > score:
             self.bestScore = score
             self.bestOffset = xOffset
             self.bestRotation = rotation
@@ -112,6 +133,9 @@ class TetrisBeast:
         self.board = copy.deepcopy(board) # copy game board
         self.block1 = block1 # current block
         self.block2 = block2 # next block
+
+        # print("board for AI")
+        # self.PrintBoard()
 
         for rotation in range(len(self.block1)): # for each block rotation 
             for offset in range(self.length): # for the length of the board
