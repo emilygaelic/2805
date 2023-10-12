@@ -5,7 +5,7 @@ import random
 class HighscorePage:
 
     @staticmethod
-    def show_top_scores(screen):
+    def ShowTopScores(screen):
         # Fetch scores from the PlayGame's method
         from GamePage import PlayGame
         scores = PlayGame.get_top_scores_from_file()
