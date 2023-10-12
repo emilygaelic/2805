@@ -5,12 +5,14 @@ import sys
 from Blocks import *
 from Board import GameBoard
 from TetrisBeast import *
+from ConfigurePage import *
 
 level_speeds = {
     "Easy": 1,  # Slowest speed
     "Medium": 2,
     "Hard": 3  # Fastest speed
 }
+
 
 class InputBox:
 
@@ -41,11 +43,11 @@ class InputBox:
         return None
 
     def update(self):
-        width = max(200, self.txt_surface.get_width()+10)
+        width = max(200, self.txt_surface.get_width() + 10)
         self.rect.w = width
 
     def draw(self, screen):
-        screen.blit(self.txt_surface, (self.rect.x+5, self.rect.y+5))
+        screen.blit(self.txt_surface, (self.rect.x + 5, self.rect.y + 5))
         pygame.draw.rect(screen, self.color, self.rect, 2)
 
     def Ask(self):
@@ -61,14 +63,15 @@ class InputBox:
             self.draw(screen)
             pygame.display.flip()
 
+
 # PlayGame Class for managing the game
 class PlayGame:
     def __init__(self, boardWidth, extensionEnabled, AIEnabled, gameLevel):
         self.boardWidth = boardWidth
         self.boardHeight = 20
-        
+
         self.extension = extensionEnabled
-     
+
         self.AI = AIEnabled
         if self.AI:
             self.TB = TetrisBeast(boardWidth)
@@ -80,7 +83,7 @@ class PlayGame:
         pygame.mixer.music.load('tetrismusic.wav')
         pygame.mixer.music.play(-1)
 
-        self.board = GameBoard(boardWidth) # create game board
+        self.board = GameBoard(boardWidth)  # create game board
         self.blockFactory = BlockFactory()  # Create an instance of the BlockFactory
         self.currentBlock = self.GetBlock()  # Get random block for user
         self.currentBlockID = self.currentBlock.GetBlockID()  # Get current block's ID
@@ -93,7 +96,7 @@ class PlayGame:
         self.counter = 0  # Counter to control block movement speed
 
         # Falling block's initial offset, x is the center of the width
-        self.x = (boardWidth // 2) * self.board.cellSize - 10 # 10 is grid offset
+        self.x = (boardWidth // 2) * self.board.cellSize - 10  # 10 is grid offset
         self.y = 100
 
         # Player metrics
@@ -125,7 +128,6 @@ class PlayGame:
         }
         self.droppingSpeed = level_speeds.get(self.level, 1)  # Default to "Easy" speed if level is not recognized
 
-
     def GetBlock(self):
         # return random type
         if not hasattr(self, 'blocks'):  # if list is empty or not defined
@@ -134,7 +136,7 @@ class PlayGame:
             else:
                 self.blocks = ["I", "J", "L", "O", "S", "T", "Z"]  # Use block type names
         newBlockType = random.choice(self.blocks)
-        #self.blocks.remove(newBlockType)
+        # self.blocks.remove(newBlockType)
         return self.blockFactory.CreateBlock(newBlockType)
 
     def DrawGame(self, gamePage):
@@ -165,7 +167,7 @@ class PlayGame:
         gamePage.blit(next, (500, 50))
 
         nextBlockColour = colours[self.nextBlockID]
-        self.nextBlock.DrawBlock(gamePage, nextBlockColour, 500, 100) # draw next block
+        self.nextBlock.DrawBlock(gamePage, nextBlockColour, 500, 100)  # draw next block
 
         score = font.render("Score: ", True, white)
         scoreValue = font.render(str(self.playerScore), True, white)
@@ -237,7 +239,7 @@ class PlayGame:
             if not self.board.IsValidPosition(movedPosition):
 
                 removed_lines = self.board.LockBlock(self.blockPosition, self.currentBlock.GetBlockID())
-                
+
                 self.eliminatedLines += removed_lines
 
                 # Scoring logic
@@ -264,7 +266,7 @@ class PlayGame:
                 self.nextBlockID = self.nextBlock.GetBlockID()
 
                 # Reset the block's starting position
-                #self.x = (self.boardWidth // 2) * self.board.cellSize - (self.board.cellSize // 2)
+                # self.x = (self.boardWidth // 2) * self.board.cellSize - (self.board.cellSize // 2)
             #     self.y = 0
             else:
                 self.blockPosition = movedPosition
@@ -293,7 +295,7 @@ class PlayGame:
             for j in range(len(self.blockPosition[i])):
                 self.blockPosition[i][j] += rotation[i][j]
 
-        if not self.board.IsValidPosition(self.blockPosition): # if block OOB
+        if not self.board.IsValidPosition(self.blockPosition):  # if block OOB
             self.currentBlock.UndoRotation()  # undo move
             # PLAY ERROR NOISE
             for i in range(len(self.blockPosition)):  # change block position back
@@ -381,3 +383,4 @@ class PlayGame:
                 return scores
         except FileNotFoundError:
             return []
+
