@@ -139,7 +139,7 @@ class ConfigurePage:
         start_text = FONT.render("Start", True, pygame.Color('white'))
         screen.blit(start_text, (self.start_button_rect.x + 20, self.start_button_rect.y + 5))
 
-    def handle_mouse_click(self, screen, mouse_pos):
+    def HandleMouseClick(self, screen, mouse_pos):
         # Handle board size buttons
         if self.size_10x20_rect.collidepoint(mouse_pos):
             self.selected_size = "10x20"
@@ -184,7 +184,7 @@ class ConfigurePage:
                         sys.exit()
                     elif event.type == pygame.MOUSEBUTTONDOWN:
                         mouse = pygame.mouse.get_pos()
-                        startup_page.handle_mouse_click(screen, mouse)
+                        startup_page.HandleMouseClick(screen, mouse)
                 pygame.display.flip()
             return  # Exit the function after handling back button
 
@@ -250,7 +250,7 @@ def main():
                 running = False
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_pos = pygame.mouse.get_pos()
-                configure_page.handle_mouse_click(screen, mouse_pos)
+                configure_page.HandleMouseClick(screen, mouse_pos)
 
         configure_page.draw_configure_page(screen)
         pygame.display.flip()
