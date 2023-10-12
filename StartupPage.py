@@ -1,6 +1,7 @@
 import pygame
 import sys
 import random
+import time 
 from GamePage import PlayGame
 
 pygame.init()
@@ -17,14 +18,12 @@ class StartupPage:
         
         # user game configurations
         self.gameExtension = True
-        self.AIMode = False
+        self.AiMode = True
         self.gameLevel = "Easy"# Set self.gameLevel to a string representing the desired difficulty level
-
 
         # user chooses game length
         self.boardSize = 10 # board length/number of columns 
 
-      #  self.AI = TetrisBeast(self.boardSize)
 
     def DrawStartupPage(self, startPage):
         pygame.display.set_caption('Welcome')
@@ -58,54 +57,91 @@ class StartupPage:
             sys.exit()
        
         elif self.start.collidepoint(mousePos):    # GAME PLAY
-
             clock = pygame.time.Clock()  # start clock
             pygame.time.set_timer(pygame.USEREVENT, 300)
             run = True  # run game variable
-            game = PlayGame(self.boardSize, self.gameExtension, self.AIMode, self.gameLevel)
+            game = PlayGame(self.boardSize, self.gameExtension, self.AiMode, self.gameLevel)
             rotate_sound = pygame.mixer.Sound("can_rotate.wav")
 
-            while run:
+            if self.AiMode: # AI Playing
+                while run:
+                    startPage.fill((0, 0, 0))  # black background
+                    game.DrawGame(startPage)
 
-                # DISPLAY - fill screen with grid and surfaces
-                startPage.fill((0, 0, 0))  # black background
-                game.DrawGame(startPage)
-                
-                # PLAYER ACTIONS
-                for event in list(pygame.event.get()): #+ self.AI.RunAI():
-
-                    if event.type == pygame.QUIT:  # user quits
-                        if (self.QuitGame()):
-                            run = False
-                            sys.exit()
-                        else:
-                            continue
-                    if event.type == pygame.KEYDOWN:
-                        if event.key == pygame.K_ESCAPE:  # quits with escape key
+                    for event in list(pygame.event.get()):
+                        if event.type == pygame.QUIT:  # user quits
                             if (self.QuitGame()):
                                 run = False
                                 sys.exit()
                             else:
                                 continue
+                    
+                    if game.AiMove == False:# AI decides move
+                        moves = game.RunAi() 
+                       # print(moves)
+                    
+                    # get first/next move
+                    if len(moves) != 0:
+                        makeMove = moves[0]
+                        moves.remove(makeMove)
 
-                        if event.key == pygame.K_RIGHT:  # move right
-                            game.MoveBlock(True)
-                        if event.key == pygame.K_LEFT:  # move left
-                            game.MoveBlock(False)
-                        if event.key == pygame.K_UP:  # rotate
-                            game.Rotate()
-                            rotate_sound.play()
-                        if event.key == pygame.K_DOWN:  # move down
+                    # make move 
+                    if makeMove == "up":
+                        game.Rotate()
+                    elif makeMove == "down":
+                        game.BlockFalls()
+                    elif makeMove == "left":
+                        game.MoveBlock(False)
+                    elif makeMove == "right":
+                        game.MoveBlock(True)
+                    game.BlockFalls() 
+
+                    if game.gameOver == True:
+                        run = False
+                    pygame.display.update()
+                    clock.tick(30)
+
+            else: # User Playing
+                while run:
+                    # DISPLAY - fill screen with grid and surfaces
+                    startPage.fill((0, 0, 0))  # black background
+                    game.DrawGame(startPage)
+
+                    # PLAYER ACTIONS
+                    for event in list(pygame.event.get()):
+
+                        if event.type == pygame.QUIT:  # user quits
+                            if (self.QuitGame()):
+                                run = False
+                                sys.exit()
+                            else:
+                                continue
+                        if event.type == pygame.KEYDOWN:
+                            if event.key == pygame.K_ESCAPE:  # quits with escape key
+                                if (self.QuitGame()):
+                                    run = False
+                                    sys.exit()
+                                else:
+                                    continue
+
+                            if event.key == pygame.K_RIGHT:  # move right
+                                game.MoveBlock(True)
+                            if event.key == pygame.K_LEFT:  # move left
+                                game.MoveBlock(False)
+                            if event.key == pygame.K_UP:  # rotate
+                                game.Rotate()
+                                rotate_sound.play()
+                            if event.key == pygame.K_DOWN:  # move down
+                                game.BlockFalls()
+
+                        if event.type == pygame.USEREVENT:
                             game.BlockFalls()
 
-                    if event.type == pygame.USEREVENT:
-                        game.BlockFalls()
+                    if game.gameOver == True:
+                        run = False
 
-                if game.gameOver == True:
-                    run = False
-
-                pygame.display.update()
-                clock.tick(30)
+                    pygame.display.update()
+                    clock.tick(30)
 
 
         elif self.configure.collidepoint(mousePos):
@@ -169,7 +205,6 @@ class StartupPage:
         no = font.render("Cancel", True, white)
         
         while True:
-
             quitScreen.blit(quit_surface, (300, 300))
             quitScreen.blit(warning, (300, 330))
             quitScreen.blit(yes, (350, 390))
