@@ -1,9 +1,9 @@
-import pygame
 import random
 import sys
 
 from Blocks import *
 from Board import GameBoard
+from TetrisBeast import *
 
 # Define level speeds globally
 level_speeds = {
@@ -28,7 +28,11 @@ class PlayGame:
         # game configurations 
         self.extension = extensionEnabled
         self.AI = AIEnabled
+        if AIEnabled:
+            self.TB = TetrisBeast(boardLength)
+            self.AiMove = False
         self.level = gameLevel
+        self.boardCentre = boardLength // 2
 
         self.SetDroppingSpeed() # controls block dropping speed depending on level
         self.counter = 0 # Counter to control block movement speed
@@ -42,21 +46,23 @@ class PlayGame:
         self.eliminatedLines = 0
         self.playerLevel = 0
         self.gameOver = False
+        self.pause = False
 
-    def SetDroppingSpeed(self):
-        if self.level == "Easy":
-            self.droppingSpeed = 1  # Adjust this value to make it slower or faster
-        elif self.level == "Medium":
-            self.droppingSpeed = 2  # Adjust this value
-        elif self.level == "Hard":
-            self.droppingSpeed = 3  # Adjust this value
-        else:
-            self.droppingSpeed = 1  # Default to "Easy" level
 
-    def handleConfiguration(self, level="Medium"):
-        # This method should be called when the player is configuring the game level
-        self.level = level
-        self.SetDroppingSpeed()
+
+    def RunAi(self):
+       # self.board.PrintBoard()
+        self.AiMove = True # AI has made move
+        
+        # get necessary variables for Tetris Beast
+        currentBoard = self.board.GetBoard()
+        block1 = self.currentBlock.GetRotations()
+        block2 = self.nextBlock.GetRotations()
+
+        moves = self.TB.RunAI(currentBoard, block1, block2, self.boardCentre) # get move from Tetris Beast 
+        
+        return moves
+
 
     def GetBlock(self, extensionEnabled):
         # return random type
@@ -78,10 +84,13 @@ class PlayGame:
         self.currentBlock.DrawBlock(gamePage, blockColour, self.x, self.y) # draw current block
         
         if self.newBlock: # initialise new block on board
+           # print("\nNext Block")
+            self.AiMove = False
             blockCells = self.currentBlock.GetBlockPos()
             self.blockPosition = self.board.PlaceBlock(blockCells) # gets block's position on grid
+            #print("falling block pos", self.blockPosition)
             self.newBlock = False
-
+        
         # fonts and colours 
         white = (255, 255, 255)
         titleFont = pygame.font.SysFont("Courier", 50)
@@ -119,6 +128,7 @@ class PlayGame:
 
 
     def BlockFalls(self):
+       # print("block falling")
         self.currentBlock.DropBlock() # move block down
 
         # Counter to control block movement speed
@@ -148,6 +158,7 @@ class PlayGame:
 
 
     def MoveBlock(self, direction):
+       # print("block moving")
         if direction == True: # move block right
             self.currentBlock.MoveRight()
 
@@ -173,6 +184,7 @@ class PlayGame:
                     pos[1] += 1
 
     def Rotate(self):
+       # print("block rotating")
         rotation = self.currentBlock.RotateBlock() # rotate block
         for i in range(len(self.blockPosition)): # change block position on grid
             for j in range(len(self.blockPosition[i])):
@@ -185,7 +197,25 @@ class PlayGame:
                 for j in range(len(self.blockPosition[i])):
                     self.blockPosition[i][j] -= rotation[i][j]
 
-    def handleConfiguration(self):  # Handle level configuration
+
+
+    def SetDroppingSpeed(self):
+        if self.level == "Easy":
+            self.droppingSpeed = 1  # Adjust this value to make it slower or faster
+        elif self.level == "Medium":
+            self.droppingSpeed = 2  # Adjust this value
+        elif self.level == "Hard":
+            self.droppingSpeed = 3  # Adjust this value
+        else:
+            self.droppingSpeed = 1  # Default to "Easy" level
+
+    def HandleConfiguration(self, level="Medium"):
+        # This method should be called when the player is configuring the game level
+        self.level = level
+        self.SetDroppingSpeed()
+
+
+    def HandleConfiguration(self):  # Handle level configuration
         self.level = "Medium"
         self.speed = level_speeds[self.level]
 
