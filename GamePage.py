@@ -22,7 +22,7 @@ class InputBox:
         self.txt_surface = self.font.render(text, True, self.color)
         self.active = False
 
-    def handle_event(self, event):
+    def HandleEvent(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
             if self.rect.collidepoint(event.pos):
                 self.active = not self.active
@@ -48,14 +48,14 @@ class InputBox:
         screen.blit(self.txt_surface, (self.rect.x+5, self.rect.y+5))
         pygame.draw.rect(screen, self.color, self.rect, 2)
 
-    def ask(self):
+    def Ask(self):
         screen = pygame.display.get_surface()
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
-                result = self.handle_event(event)
+                result = self.HandleEvent(event)
                 if result is not None:
                     return result
             self.draw(screen)
@@ -63,19 +63,16 @@ class InputBox:
 
 # PlayGame Class for managing the game
 class PlayGame:
-    def __init__(self, boardWidth, boardHeight, gameLevel, gameMode=None, playerMode=None, extensionEnabled=False,
-                 AIEnabled=False):
+    def __init__(self, boardWidth, extensionEnabled, AIEnabled, gameLevel):
         self.boardWidth = boardWidth
-        self.boardHeight = boardHeight
-        if extensionEnabled:
-            self.extension = extensionEnabled
-        else:
-            self.extension = True if gameMode == "Extended" else False
-
-        if AIEnabled:
-            self.AI = AIEnabled
-        else:
-            self.AI = True if playerMode == "AI" else False
+        self.boardHeight = 20
+        
+        self.extension = extensionEnabled
+     
+        self.AI = AIEnabled
+        if self.AI:
+            self.TB = TetrisBeast(boardWidth)
+            self.AiMove = False
 
         self.level = gameLevel
 
@@ -83,10 +80,11 @@ class PlayGame:
         pygame.mixer.music.load('tetrismusic.wav')
         pygame.mixer.music.play(-1)
 
+        self.board = GameBoard(boardWidth) # create game board
         self.blockFactory = BlockFactory()  # Create an instance of the BlockFactory
-        self.currentBlock = self.GetBlock(self.extension)  # Get random block for user
+        self.currentBlock = self.GetBlock()  # Get random block for user
         self.currentBlockID = self.currentBlock.GetBlockID()  # Get current block's ID
-        self.nextBlock = self.GetBlock(self.extension)  # Get next block to display to the player
+        self.nextBlock = self.GetBlock()  # Get next block to display to the player
         self.nextBlockID = self.nextBlock.GetBlockID()  # Get next block's ID
         self.newBlock = True  # New block to be added to board
         self.blockPosition = []  # Stores falling block's position on board
@@ -95,8 +93,8 @@ class PlayGame:
         self.counter = 0  # Counter to control block movement speed
 
         # Falling block's initial offset, x is the center of the width
-        self.x = (boardWidth // 2) * self.board.cell_size - (self.board.cell_size // 2)
-        self.y = 0
+        self.x = (boardWidth // 2) * self.board.cellSize - 10 # 10 is grid offset
+        self.y = 100
 
         # Player metrics
         self.playerScore = 0
@@ -112,8 +110,9 @@ class PlayGame:
         currentBoard = self.board.GetBoard()
         block1 = self.currentBlock.GetRotations()
         block2 = self.nextBlock.GetRotations()
+        centre = self.boardWidth // 2
 
-        moves = self.TB.RunAI(currentBoard, block1, block2, self.boardCentre)  # get move from Tetris Beast
+        moves = self.TB.RunAI(currentBoard, block1, block2, centre)  # get move from Tetris Beast
 
         return moves
 
@@ -127,10 +126,10 @@ class PlayGame:
         self.droppingSpeed = level_speeds.get(self.level, 1)  # Default to "Easy" speed if level is not recognized
 
 
-    def GetBlock(self, extensionEnabled):
+    def GetBlock(self):
         # return random type
         if not hasattr(self, 'blocks'):  # if list is empty or not defined
-            if extensionEnabled:
+            if self.extension:
                 self.blocks = ["I", "J", "L", "O", "S", "T", "Z", "Ex_I", "Ex_J"]  # include extension blocks
             else:
                 self.blocks = ["I", "J", "L", "O", "S", "T", "Z"]  # Use block type names
@@ -157,43 +156,72 @@ class PlayGame:
         font = pygame.font.SysFont("Courier", 30)
         font2 = pygame.font.SysFont("Courier", 20)
 
-        # Game Display from the 1st version (dynamic positioning)
-        offsetX = (self.boardWidth + 2) * self.board.cell_size + 20
-
+        # Game Display
         title = titleFont.render("Tetris", True, white)
         group = font2.render("Group 44", True, white)
-        gamePage.blit(title, (offsetX, 20))
-        gamePage.blit(group, (offsetX, 70))
-
-        spacing = 50  # Vertical spacing
-        next_offset = 140
-        score_offset = next_offset + spacing * 3 + 20
-        eliminate_offset = score_offset + spacing * 2 + 20
-        level_offset = eliminate_offset + spacing * 2 + 20
-        info_offset = level_offset + spacing * 2
-
         next = font.render("Next Block: ", True, white)
-        gamePage.blit(next, (offsetX, next_offset))
+        gamePage.blit(title, (120, 20))
+        gamePage.blit(group, (300, 70))
+        gamePage.blit(next, (500, 50))
+
         nextBlockColour = colours[self.nextBlockID]
-        self.nextBlock.DrawBlock(gamePage, nextBlockColour, offsetX, next_offset + spacing)
+        self.nextBlock.DrawBlock(gamePage, nextBlockColour, 500, 100) # draw next block
 
         score = font.render("Score: ", True, white)
         scoreValue = font.render(str(self.playerScore), True, white)
-        gamePage.blit(score, (offsetX, score_offset))
-        gamePage.blit(scoreValue, (offsetX + 110, score_offset))
+        gamePage.blit(score, (500, 250))
+        gamePage.blit(scoreValue, (610, 250))
 
-        eliminate = font.render("Eliminated Lines:", True, white)
+        eliminate = font.render("Eliminated Lines: ", True, white)
         eliminated = font.render(str(self.eliminatedLines), True, white)
-        gamePage.blit(eliminate, (offsetX, eliminate_offset))
-        gamePage.blit(eliminated, (offsetX + 310, eliminate_offset))
+        gamePage.blit(eliminate, (500, 400))
+        gamePage.blit(eliminated, (810, 400))
 
         level = font.render("Level: ", True, white)
         levelValue = font.render(str(self.playerLevel), True, white)
-        gamePage.blit(level, (offsetX, level_offset))
-        gamePage.blit(levelValue, (offsetX + 110, level_offset))
+        gamePage.blit(level, (500, 550))
+        gamePage.blit(levelValue, (610, 550))
 
-        info = font2.render("Game Details: Normal version, Player mode", True, white)
-        gamePage.blit(info, (offsetX, info_offset))
+        info = font2.render("Game Details: Normal version, Player mode", True, white)  # DISPLAY ACTUAL
+        gamePage.blit(info, (500, 650))
+
+        # # Game Display from the 1st version (dynamic positioning)
+        # offsetX = (self.boardWidth + 2) * self.board.cellSize + 20
+
+        # title = titleFont.render("Tetris", True, white)
+        # group = font2.render("Group 44", True, white)
+        # gamePage.blit(title, (offsetX, 20))
+        # gamePage.blit(group, (offsetX, 70))
+
+        # spacing = 50  # Vertical spacing
+        # next_offset = 140
+        # score_offset = next_offset + spacing * 3 + 20
+        # eliminate_offset = score_offset + spacing * 2 + 20
+        # level_offset = eliminate_offset + spacing * 2 + 20
+        # info_offset = level_offset + spacing * 2
+
+        # next = font.render("Next Block: ", True, white)
+        # gamePage.blit(next, (offsetX, next_offset))
+        # nextBlockColour = colours[self.nextBlockID]
+        # self.nextBlock.DrawBlock(gamePage, nextBlockColour, offsetX, next_offset + spacing)
+
+        # score = font.render("Score: ", True, white)
+        # scoreValue = font.render(str(self.playerScore), True, white)
+        # gamePage.blit(score, (offsetX, score_offset))
+        # gamePage.blit(scoreValue, (offsetX + 110, score_offset))
+
+        # eliminate = font.render("Eliminated Lines:", True, white)
+        # eliminated = font.render(str(self.eliminatedLines), True, white)
+        # gamePage.blit(eliminate, (offsetX, eliminate_offset))
+        # gamePage.blit(eliminated, (offsetX + 310, eliminate_offset))
+
+        # level = font.render("Level: ", True, white)
+        # levelValue = font.render(str(self.playerLevel), True, white)
+        # gamePage.blit(level, (offsetX, level_offset))
+        # gamePage.blit(levelValue, (offsetX + 110, level_offset))
+
+        # info = font2.render("Game Details: Normal version, Player mode", True, white)
+        # gamePage.blit(info, (offsetX, info_offset))
 
     def BlockFalls(self):
         self.currentBlock.DropBlock()  # Move block down
@@ -207,7 +235,9 @@ class PlayGame:
 
             # If block can't move down, lock the block in place
             if not self.board.IsValidPosition(movedPosition):
+
                 removed_lines = self.board.LockBlock(self.blockPosition, self.currentBlock.GetBlockID())
+                
                 self.eliminatedLines += removed_lines
 
                 # Scoring logic
@@ -218,24 +248,24 @@ class PlayGame:
                 for cell in self.blockPosition:
                     if cell[0] == 0:
                         self.gameOver = True
-                        action = self.game_over_screen()  # Not present in the 2nd version but retained from the 1st
+                        action = self.GameOverScreen()  # Not present in the 2nd version but retained from the 1st
                         if action == "QUIT":
                             pygame.quit()
                             sys.exit()
                         elif action == "RESTART":
-                            self.restart_game()
+                            self.RestartGame()
                             return
 
                 # Get a new block
                 self.newBlock = True
                 self.currentBlock = self.nextBlock
                 self.currentBlockID = self.currentBlock.GetBlockID()
-                self.nextBlock = self.GetBlock(self.extension)
+                self.nextBlock = self.GetBlock()
                 self.nextBlockID = self.nextBlock.GetBlockID()
 
                 # Reset the block's starting position
-                self.x = (self.boardWidth // 2) * self.board.cell_size - (self.board.cell_size // 2)
-                self.y = 0
+                #self.x = (self.boardWidth // 2) * self.board.cellSize - (self.board.cellSize // 2)
+            #     self.y = 0
             else:
                 self.blockPosition = movedPosition
 
@@ -279,16 +309,16 @@ class PlayGame:
         }
         self.speed = level_speeds[self.level]
 
-    def game_over_actions(self):
-        scores = self.get_top_scores_from_file()
+    def GameOverActions(self):
+        scores = self.GetScores()
         if len(scores) < 10 or self.playerScore > scores[-1][1]:
             # Prompt user for their name
-            input_box = InputBox(self.boardHeight * 30 // 2, 350, 140, 32)
-            name = input_box.ask()
+            inputBox = InputBox(self.boardHeight * 30 // 2, 350, 140, 32)
+            name = inputBox.Ask()
             scores.append((name, self.playerScore))
             scores.sort(key=lambda x: x[1], reverse=True)
             scores = scores[:10]
-            self.save_scores_to_file(scores)
+            self.SaveScores(scores)
 
             # Stop the background music and play game over sound
             pygame.mixer.music.stop()  # Stop the background music
@@ -299,7 +329,10 @@ class PlayGame:
             from TopscorePage import HighscorePage
             HighscorePage.show_top_scores()
 
-    def game_over_screen(self):
+    def RestartGame(self):
+        print("restart game")
+
+    def GameOverScreen(self):
         screen = pygame.display.get_surface()
         screen_width, screen_height = screen.get_size()
 
@@ -333,13 +366,13 @@ class PlayGame:
             pygame.display.flip()
 
     @staticmethod
-    def save_scores_to_file(scores):
+    def SaveScores(scores):
         with open("highscores.txt", "w") as file:
             for name, score in scores:
                 file.write(f"{name},{score}\n")
 
     @staticmethod
-    def get_top_scores_from_file():
+    def GetScores():
         try:
             with open("highscores.txt", "r") as file:
                 lines = file.readlines()
