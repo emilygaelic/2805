@@ -33,6 +33,9 @@ class Blocks:
         self.x = 0 # tracks current block's x axis location
         self.y = 0 # tracks current block's y axis location
     
+    def GetRotations(self):
+        return self.rotations
+    
     def GetBlockPos(self):
         return self.rotations[self.rotation]
     
