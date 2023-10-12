@@ -22,7 +22,7 @@ def main():
                 sys.exit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 mouse = pygame.mouse.get_pos()
-                startupPage.handle_mouse_click(win, mouse)
+                startupPage.HandleMouseClick(win, mouse)
 
         pygame.display.flip()
     pygame.quit()
