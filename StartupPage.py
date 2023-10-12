@@ -5,8 +5,8 @@ from GamePage import PlayGame
 
 pygame.init()
 
-class StartupPage:
 
+class StartupPage:
     font = pygame.font.SysFont('Courier', 50, 'bold')
 
     def __init__(self):
@@ -14,14 +14,14 @@ class StartupPage:
         self.scores = pygame.Rect(50, 600, 183, 50)
         self.configure = pygame.Rect(360, 600, 275, 50)
         self.exit = pygame.Rect(800, 600, 125, 50)
-        
+
         # user game configurations
         self.gameExtension = True
         self.AiMode = False
         self.gameLevel = "Easy"  # Set self.gameLevel to a string representing the desired difficulty level
 
         # user chooses game length
-        self.boardSize = 10 # board width
+        self.boardSize = 10  # board width
 
     def DrawStartupPage(self, startPage):
         pygame.display.set_caption('Welcome')
@@ -156,7 +156,7 @@ class StartupPage:
                         sys.exit()
                     elif e.type == pygame.MOUSEBUTTONDOWN:
                         mousePos = pygame.mouse.get_pos()
-                        configure_page.HandleMouseClick(startPage, mousePos)
+                        configure_page.HandleMouseClick(startPage, startPage, mousePos)
 
                 pygame.display.flip()
                 clock = pygame.time.Clock()

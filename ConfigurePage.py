@@ -22,9 +22,10 @@ class ConfigurePage:
         self.game_mode = "Normal"
         self.player_mode = "Player"
 
-        self.size_options = ["10x20", "10x24"]
-        self.size_10x20_rect = pygame.Rect(50, 150, 200, 50)
-        self.size_10x24_rect = pygame.Rect(300, 150, 200, 50)
+        self.size_options = ["5x20", "10x20", "15x20"]
+        self.size_5x20_rect = pygame.Rect(50, 150, 200, 50)
+        self.size_10x20_rect = pygame.Rect(300, 150, 200, 50)
+        self.size_15x20_rect = pygame.Rect(550, 150, 200, 50)
         self.easy_mode_rect = pygame.Rect(50, 265, 200, 50)
         self.medium_mode_rect = pygame.Rect(300, 265, 200, 50)
         self.hard_mode_rect = pygame.Rect(550, 265, 200, 50)
@@ -35,14 +36,22 @@ class ConfigurePage:
         self.close_button_rect = pygame.Rect(750, 650, 100, 30)
         self.back_button_rect = pygame.Rect(50, 650, 100, 30)
         self.play_game = None
+        # user game configurations
+        self.gameExtension = True
+        self.AiMode = False
+        self.gameLevel = "Easy"  # Set self.gameLevel to a string representing the desired difficulty level
+
+        # user chooses game length
+        self.boardSize = 10  # board width
 
 
     def draw_configure_page(self, screen):
         screen.fill(WHITE)
 
         # Determine button colors based on user selections
+        size_5x20_color = SELECTED_COLOR if self.selected_size == "5x20" else pygame.Color('gray')
         size_10x20_color = SELECTED_COLOR if self.selected_size == "10x20" else pygame.Color('gray')
-        size_10x24_color = SELECTED_COLOR if self.selected_size == "10x24" else pygame.Color('gray')
+        size_15x20_color = SELECTED_COLOR if self.selected_size == "15x20" else pygame.Color('gray')
         easy_mode_color = SELECTED_COLOR if self.selected_level == "Easy" else pygame.Color('gray')
         medium_mode_color = SELECTED_COLOR if self.selected_level == "Medium" else pygame.Color('gray')
         hard_mode_color = SELECTED_COLOR if self.selected_level == "Hard" else pygame.Color('gray')
@@ -54,15 +63,19 @@ class ConfigurePage:
         # Draw size buttons
         text = FONT.render("Field size:", True, pygame.Color('black'))
         screen.blit(text, (50, 110))
+        size_5x20_text = FONT.render("5x20", True, pygame.Color('black'))
         size_10x20_text = FONT.render("10x20", True, pygame.Color('black'))
-        size_10x24_text = FONT.render("10x24", True, pygame.Color('black'))
+        size_15x20_text = FONT.render("15x20", True, pygame.Color('black'))
+        pygame.draw.rect(screen, size_5x20_color, self.size_5x20_rect)
         pygame.draw.rect(screen, size_10x20_color, self.size_10x20_rect)
-        pygame.draw.rect(screen, size_10x24_color, self.size_10x24_rect)
+        pygame.draw.rect(screen, size_15x20_color, self.size_15x20_rect)
+        pygame.draw.rect(screen, pygame.Color('black'), self.size_5x20_rect, 2)
         pygame.draw.rect(screen, pygame.Color('black'), self.size_10x20_rect, 2)
-        pygame.draw.rect(screen, pygame.Color('black'), self.size_10x24_rect, 2)
+        pygame.draw.rect(screen, pygame.Color('black'), self.size_15x20_rect, 2)
 
+        screen.blit(size_5x20_text, (self.size_5x20_rect.x + 20, self.size_5x20_rect.y + 15))
         screen.blit(size_10x20_text, (self.size_10x20_rect.x + 20, self.size_10x20_rect.y + 15))
-        screen.blit(size_10x24_text, (self.size_10x24_rect.x + 20, self.size_10x24_rect.y + 15))
+        screen.blit(size_15x20_text, (self.size_15x20_rect.x + 20, self.size_15x20_rect.y + 15))
 
         # Draw level buttons
         text = FONT.render("Game level:", True, pygame.Color('black'))
@@ -139,12 +152,16 @@ class ConfigurePage:
         start_text = FONT.render("Start", True, pygame.Color('white'))
         screen.blit(start_text, (self.start_button_rect.x + 20, self.start_button_rect.y + 5))
 
-    def HandleMouseClick(self, screen, mouse_pos):
+    def HandleMouseClick(self, screen, configurePage, mouse_pos):
         # Handle board size buttons
+        from StartupPage import StartupPage
+        startPage = StartupPage()
         if self.size_10x20_rect.collidepoint(mouse_pos):
             self.selected_size = "10x20"
-        elif self.size_10x24_rect.collidepoint(mouse_pos):
-            self.selected_size = "10x24"
+        elif self.size_5x20_rect.collidepoint(mouse_pos):
+            self.selected_size = "5x20"
+        elif self.size_15x20_rect.collidepoint(mouse_pos):
+            self.selected_size = "15x20"
 
         # Handle game level buttons
         elif self.easy_mode_rect.collidepoint(mouse_pos):
@@ -171,26 +188,121 @@ class ConfigurePage:
             pygame.quit()
             sys.exit()
         elif self.start_button_rect.collidepoint(mouse_pos):
-            self.start_game()
+
+            clock = pygame.time.Clock()  # start clock
+            pygame.time.set_timer(pygame.USEREVENT, 300)
+            run = True  # run game variable
+            game = PlayGame(self.boardSize, self.gameExtension, self.AiMode, self.gameLevel)
+            rotate_sound = pygame.mixer.Sound("can_rotate.wav")
+
+            if self.AiMode:  # AI Playing
+                while run:
+                    screen.fill((0, 0, 0))  # black background
+                    game.DrawGame(configurePage)
+
+                    for event in list(pygame.event.get()):
+                        if event.type == pygame.QUIT:  # user quits
+                            if (self.QuitGame()):
+                                run = False
+                                sys.exit()
+                            else:
+                                continue
+
+                    if game.AiMove == False:  # AI decides move
+                        moves = game.RunAi()
+                        # print(moves)
+
+                    # get first/next move
+                    if len(moves) != 0:
+                        makeMove = moves[0]
+                        moves.remove(makeMove)
+
+                    # make move
+                    if makeMove == "up":
+                        game.Rotate()
+                    elif makeMove == "down":
+                        game.BlockFalls()
+                    elif makeMove == "left":
+                        game.MoveBlock(False)
+                    elif makeMove == "right":
+                        game.MoveBlock(True)
+                    game.BlockFalls()
+
+                    if game.gameOver == True:
+                        run = False
+                    pygame.display.update()
+                    clock.tick(30)
+
+            else:  # User Playing
+                while run:
+                    # DISPLAY - fill screen with grid and surfaces
+                    screen.fill((0, 0, 0))  # black background
+                    game.DrawGame(configurePage)
+
+                    # PLAYER ACTIONS
+                    for event in list(pygame.event.get()):
+
+                        if event.type == pygame.QUIT:  # user quits
+                            if startPage.QuitGame():
+                                run = False
+                                sys.exit()
+                            else:
+                                continue
+                        if event.type == pygame.KEYDOWN:
+                            if event.key == pygame.K_ESCAPE:  # quits with escape key
+                                if startPage.QuitGame():
+                                    run = False
+                                    sys.exit()
+                                else:
+                                    continue
+
+                            if event.key == pygame.K_RIGHT:  # move right
+                                game.MoveBlock(True)
+                            if event.key == pygame.K_LEFT:  # move left
+                                game.MoveBlock(False)
+                            if event.key == pygame.K_UP:  # rotate
+                                game.Rotate()
+                                rotate_sound.play()
+                            if event.key == pygame.K_DOWN:  # move down
+                                game.BlockFalls()
+
+                        if event.type == pygame.USEREVENT:
+                            game.BlockFalls()
+
+                    if game.gameOver == True:
+                        run = False
+
+                    pygame.display.update()
+                    clock.tick(30)
+
         elif self.back_button_rect.collidepoint(mouse_pos):
-            screen.fill(WHITE)
+            screen.fill((255, 255, 255))
             from StartupPage import StartupPage
             startup_page = StartupPage()
-            startup_page.draw_startup_page(screen)
-            while True:
+            startup_page.DrawStartupPage(screen)
+            go = True
+            # start page
+            while go:
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         pygame.quit()
                         sys.exit()
                     elif event.type == pygame.MOUSEBUTTONDOWN:
                         mouse = pygame.mouse.get_pos()
-                        startup_page.HandleMouseClick(screen, mouse)
+                        startPage.HandleMouseClick(screen, mouse)
                 pygame.display.flip()
-            return  # Exit the function after handling back button
 
         # Redraw the configure page with updated selections
         self.draw_configure_page(screen)
         pygame.display.flip()
+
+    def getField(self):
+        if self.selected_size == "5x20":
+            return 5
+        elif self.selected_size == "10x20":
+            return 10
+        elif self.selected_size == "15x20":
+            return 15
 
     def get_board_size(self):
         if self.selected_size == "10x20":
@@ -261,3 +373,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+
