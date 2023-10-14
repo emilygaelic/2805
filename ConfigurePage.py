@@ -169,10 +169,13 @@ class ConfigurePage:
         # Handle game level buttons
         elif self.easy_mode_rect.collidepoint(mouse_pos):
             self.selected_level = "Easy"
+            self.getLevel()
         elif self.medium_mode_rect.collidepoint(mouse_pos):
             self.selected_level = "Medium"
+            self.getLevel()
         elif self.hard_mode_rect.collidepoint(mouse_pos):
             self.selected_level = "Hard"
+            self.getLevel()
 
         # Handle game mode buttons
         elif self.normal_mode_rect.collidepoint(mouse_pos):
@@ -196,6 +199,7 @@ class ConfigurePage:
             pygame.time.set_timer(pygame.USEREVENT, 300)
             run = True  # run game variable
             self.boardSize = self.getField()
+            self.gameLevel = self.getLevel()
             game = PlayGame(self.boardSize, self.gameExtension, self.AiMode, self.gameLevel)
             rotate_sound = pygame.mixer.Sound("can_rotate.wav")
 
@@ -308,19 +312,13 @@ class ConfigurePage:
         elif self.selected_size == "15x20":
             return 15
 
-    def get_board_size(self):
-        if self.selected_size == "10x20":
-            return 10, 20
-        elif self.selected_size == "10x24":
-            return 10, 24
-        return 10, 20
-
-    def handle_level_change(self):
-        boardLength, boardHeight = self.get_board_size()
-        if self.play_game is None:
-            self.play_game = PlayGame(boardLength, boardHeight, level=self.selected_level)
-        else:
-            self.play_game.set_level(self.selected_level)
+    def getLevel(self):
+        if self.selected_level == "Easy":
+            return 1
+        elif self.selected_level == "Medium":
+            return 2
+        elif self.selected_level == "Hard":
+            return 3
 
     def play_game_loop(self):
         screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))

@@ -77,7 +77,8 @@ class PlayGame:
             self.TB = TetrisBeast(boardWidth)
             self.AiMove = False
 
-        self.level = gameLevel
+        self.droppingSpeed = gameLevel
+
 
         pygame.mixer.init()
         pygame.mixer.music.load('tetrismusic.wav')
@@ -92,7 +93,6 @@ class PlayGame:
         self.newBlock = True  # New block to be added to board
         self.blockPosition = []  # Stores falling block's position on board
 
-        self.SetDroppingSpeed()  # Controls block dropping speed depending on level
         self.counter = 0  # Counter to control block movement speed
 
         # Falling block's initial offset, x is the center of the width
@@ -118,15 +118,6 @@ class PlayGame:
         moves = self.TB.RunAI(currentBoard, block1, block2, centre)  # get move from Tetris Beast
 
         return moves
-
-    def SetDroppingSpeed(self):
-        # Define the speed for block dropping based on level
-        level_speeds = {
-            "Easy": 1,  # Slowest speed
-            "Medium": 2,
-            "Hard": 3  # Fastest speed
-        }
-        self.droppingSpeed = level_speeds.get(self.level, 1)  # Default to "Easy" speed if level is not recognized
 
     def GetBlock(self):
         # return random type
@@ -217,11 +208,9 @@ class PlayGame:
         # gamePage.blit(levelValue, (offsetX + 110, level_offset))
         # info = font2.render("Game Details: Normal version, Player mode", True, white)
         # gamePage.blit(info, (offsetX, info_offset))
-
     def BlockFalls(self):
-        self.currentBlock.DropBlock()  # Move block down
+        self.currentBlock.DropBlock(self.droppingSpeed)  # Move block down
         self.counter += 1
-
         if self.counter >= self.droppingSpeed:
             self.counter = 0
 
@@ -378,3 +367,4 @@ class PlayGame:
                 return scores
         except FileNotFoundError:
             return []
+
