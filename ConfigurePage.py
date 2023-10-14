@@ -158,10 +158,13 @@ class ConfigurePage:
         startPage = StartupPage()
         if self.size_10x20_rect.collidepoint(mouse_pos):
             self.selected_size = "10x20"
+            self.getField()
         elif self.size_5x20_rect.collidepoint(mouse_pos):
             self.selected_size = "5x20"
+            self.getField()
         elif self.size_15x20_rect.collidepoint(mouse_pos):
             self.selected_size = "15x20"
+            self.getField()
 
         # Handle game level buttons
         elif self.easy_mode_rect.collidepoint(mouse_pos):
@@ -192,6 +195,7 @@ class ConfigurePage:
             clock = pygame.time.Clock()  # start clock
             pygame.time.set_timer(pygame.USEREVENT, 300)
             run = True  # run game variable
+            self.boardSize = self.getField()
             game = PlayGame(self.boardSize, self.gameExtension, self.AiMode, self.gameLevel)
             rotate_sound = pygame.mixer.Sound("can_rotate.wav")
 
@@ -373,6 +377,5 @@ def main():
 
 if __name__ == "__main__":
     main()
-
 
 

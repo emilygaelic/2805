@@ -3,6 +3,7 @@ import sys
 import random
 from GamePage import PlayGame
 
+
 pygame.init()
 
 
@@ -57,6 +58,9 @@ class StartupPage:
             clock = pygame.time.Clock()  # start clock
             pygame.time.set_timer(pygame.USEREVENT, 300)
             run = True  # run game variable
+            from ConfigurePage import ConfigurePage
+            configurePage = ConfigurePage()
+            self.boardSize = configurePage.getField()
             game = PlayGame(self.boardSize, self.gameExtension, self.AiMode, self.gameLevel)
             rotate_sound = pygame.mixer.Sound("can_rotate.wav")
 
