@@ -1,10 +1,11 @@
 import pygame
 import sys
-import random
 from GamePage import PlayGame
+import json
 
 
 pygame.init()
+
 
 class InputBox:
 
@@ -56,7 +57,6 @@ class InputBox:
             pygame.display.flip()
 
 
-
 class StartupPage:
     font = pygame.font.SysFont('Courier', 50, 'bold')
 
@@ -69,16 +69,18 @@ class StartupPage:
         # user game configurations
         self.gameExtension = False
         self.AiMode = False
-        self.gameLevel = 3 # easy 
+        self.gameLevel = 1
         self.boardSize = 10  # board width
 
         self.playingMusic = True
-    
+
+        self.playerScore=0
+
     def RunStartup(self):
         startPage = pygame.display.set_mode((1000, 700))
         pygame.mouse.set_visible(1)
         startPage.fill((255, 255, 255))
-        #startupPage = StartupPage()
+        # startupPage = StartupPage()
         self.DrawStartupPage(startPage)
         while True:
             for event in pygame.event.get():
@@ -116,21 +118,21 @@ class StartupPage:
 
     def HandleMouseClick(self, startPage, mousePos):
         pygame.display.set_caption('Tetris 44')
+
         if self.exit.collidepoint(mousePos):
             pygame.quit()
             sys.exit()
 
         elif self.start.collidepoint(mousePos):  # GAME PLAY
-
             if self.AiMode:  # AI Playing
                 self.AIPlaying(startPage)
             else:  # User Playing
                 self.UserPlaying(startPage)
-                
+
         elif self.configure.collidepoint(mousePos):
             from ConfigurePage import ConfigurePage
             configure_page = ConfigurePage()
-              
+
             pygame.mixer.music.load("background.wav")
             pygame.mixer.music.play(-1)
             config = True
@@ -149,24 +151,16 @@ class StartupPage:
                 pygame.display.flip()
                 clock = pygame.time.Clock()
                 clock.tick(30)
-            
+
             self.RunStartup()
+
 
         elif self.scores.collidepoint(mousePos):
             from TopscorePage import HighscorePage
             pygame.display.set_caption('Top Scores')
+            highscore_page = HighscorePage()
+            highscore_page.showTopScores(startPage, self)  # Passing the instance of StartupPage as an argument.
 
-            # Generate random player scores
-            # player_scores = [(f'Player {i}', random.randint(15000, 25000)) for i in range(1, 11)]
-
-            # # Score range between 15000-25000
-            # player_scores[0] = ('Player 1', 25000)
-            # player_scores[-1] = ('Player 10', 15000)
-
-            # # sort scores in desc order
-            # player_scores.sort(key=lambda x: x[1], reverse=True)
-
-            HighscorePage.ShowTopScores(startPage)
 
     def PauseGame(self):
         # pause screen
@@ -196,7 +190,6 @@ class StartupPage:
                     if event.key == pygame.K_p:
                         return True
 
-                    
     def QuitGame(self):
         # new quit screen for confirming game exit
         quitScreen = pygame.display.set_mode((1000, 700))
@@ -226,9 +219,6 @@ class StartupPage:
             pygame.display.update()
 
             for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     mouse = pygame.mouse.get_pos()
                     if yes_rect.collidepoint(mouse):
@@ -236,12 +226,10 @@ class StartupPage:
                     elif no_rect.collidepoint(mouse):
                         return False
 
-
     def AIPlaying(self, startPage):
         clock = pygame.time.Clock()  # start clock
         pygame.time.set_timer(pygame.USEREVENT, 300)
-        game = PlayGame(self.boardSize, self.gameExtension, self.AiMode)
-        
+        game = PlayGame(self.boardSize, self.gameExtension, self.AiMode, self.gameLevel)
         run = True  # run game variable
         while run:
             startPage.fill((0, 0, 0))  # black background
@@ -250,28 +238,14 @@ class StartupPage:
             for event in list(pygame.event.get()):
                 if event.type == pygame.QUIT:  # user quits
                     if (self.QuitGame()):
-                        self.RunStartup()
+                        run = False
+                        sys.exit()
                     else:
                         continue
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_ESCAPE:  # quits with escape key
-                        if (self.QuitGame()):
-                            self.RunStartup()
-                        else:
-                            continue
-                    
-                    if event.key == pygame.K_p:  # pause game
-                        self.PauseGame()
-                    if event.key == pygame.K_m:  # toggle music
-                        if self.playingMusic:
-                            pygame.mixer.music.stop()
-                            self.playingMusic = False
-                        else:
-                            pygame.mixer.music.play(-1)
-                            self.playingMusic = True
 
             if game.AiMove == False:  # AI decides move
                 moves = game.RunAi()
+                # print(moves)
 
             # get first/next move
             if len(moves) != 0:
@@ -296,17 +270,12 @@ class StartupPage:
 
         self.GameOverScreen()
 
-
-
     def UserPlaying(self, startPage):
         clock = pygame.time.Clock()  # start clock
-        droppingSpeed = self.gameLevel * 100
-        pygame.time.set_timer(pygame.USEREVENT, droppingSpeed)        
-        game = PlayGame(self.boardSize, self.gameExtension, self.AiMode)
-        
+        pygame.time.set_timer(pygame.USEREVENT, 300)
+        game = PlayGame(self.boardSize, self.gameExtension, self.AiMode, self.gameLevel)
         rotate_sound = pygame.mixer.Sound("can_rotate.wav")
-        
-        run = True  # run game variable        
+        run = True  # run game variable
         while run:
             # DISPLAY - fill screen with grid and surfaces
             startPage.fill((0, 0, 0))  # black background
@@ -318,14 +287,16 @@ class StartupPage:
                 if event.type == pygame.QUIT:  # user quits
                     if (self.QuitGame()):
                         self.RunStartup()
+                        # run = False
+                    # sys.exit()
                     else:
                         continue
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:  # quits with escape key
                         if (self.QuitGame()):
                             self.RunStartup()
-                            #run = False
-                            #sys.exit()
+                            # run = False
+                            # sys.exit()
                         else:
                             continue
 
@@ -349,93 +320,106 @@ class StartupPage:
                             self.playingMusic = True
 
                 if event.type == pygame.USEREVENT:
-                   game.BlockFalls()
-                
+                    game.BlockFalls()
 
             if game.gameOver == True:
                 run = False
 
-            
-            clock.tick(30)
             pygame.display.update()
-        
-       # self.GameOverActions()
+            clock.tick(30)
+
+        # self.GameOverActions()
         self.GameOverScreen()
 
+    def GetScores(self):
+        try:
+            with open('scores.json', 'r') as file:
+                scores = json.load(file)
+            return scores
+        except (FileNotFoundError, json.JSONDecodeError):
+            return []
+
+    def SaveScores(self, scores):
+        with open('scores.json', 'w') as file:
+            json.dump(scores, file)
 
     def GameOverActions(self):
         scores = self.GetScores()
-        if len(scores) < 10 or self.playerScore > scores[-1][1]:
-            # Prompt user for their name
-            inputBox = InputBox(20 * 30 // 2, 350, 140, 32)
-            name = inputBox.Ask()
-            scores.append((name, self.playerScore))
-            scores.sort(key=lambda x: x[1], reverse=True)
-            scores = scores[:10]
-            self.SaveScores(scores)
+        name = None
 
+        if len(scores) < 10 or self.playerScore > scores[-1][1]:
             # Stop the background music and play game over sound
             pygame.mixer.music.stop()  # Stop the background music
             game_over_sound = pygame.mixer.Sound('gameover.wav')  # Load the game over sound
             game_over_sound.play()  # Play the game over sound
 
-            # Transition to TopscorePage
-            from TopscorePage import HighscorePage
-            HighscorePage.show_top_scores()
-
+            # Prompt user for their name
+            name = self.GameOverScreen()
+            if name:  # Check if the name is not empty or None
+                scores.append((name, self.playerScore))
+                scores.sort(key=lambda x: x[1], reverse=True)
+                scores = scores[:10]
+                self.SaveScores(scores)
+        else:
+            self.GameOverScreen()
 
     def GameOverScreen(self):
         screen = pygame.display.get_surface()
         screen_width, screen_height = screen.get_size()
 
+        # Render the "Enter Your Name" text
+        font = pygame.font.SysFont("Courier", 30)
+        prompt_text = font.render("Enter Your Name:", True, (255, 255, 255))
+        prompt_rect = prompt_text.get_rect(center=(screen_width // 2, screen_height / 2))
+
+        # Input box
+        input_box = InputBox(screen.get_width() // 2 - 70, screen_height / 2 + 30, 140, 32)
+
+        # Game over text
         game_over_font = pygame.font.SysFont("Courier", 50)
         game_over_text = game_over_font.render("GAME OVER!", True, (255, 0, 0))
-        game_over_rect = game_over_text.get_rect(center=(screen_width / 2, screen_height / 2 - 60))
+        game_over_rect = game_over_text.get_rect(center=(screen_width / 2, screen_height / 2 - 90))
 
+        # Restart and Exit buttons
         restart_font = pygame.font.SysFont("Courier", 30)
         restart_text = restart_font.render("RESTART", True, (255, 255, 255))
-        restart_rect = restart_text.get_rect(center=(screen_width / 2, screen_height / 2 + 20))
+        restart_rect = restart_text.get_rect(center=(screen_width / 2, screen_height / 2 + 160))
 
         exit_font = pygame.font.SysFont("Courier", 30)
         exit_text = exit_font.render("EXIT", True, (255, 255, 255))
-        exit_rect = exit_text.get_rect(center=(screen_width / 2, screen_height / 2 + 60))
+        exit_rect = exit_text.get_rect(center=(screen_width / 2, screen_height / 2 + 200))
 
-        while True:
+        player_name = None
+        done = False
+
+        while not done:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
+                if not player_name:
+                    player_name = input_box.HandleEvent(event)
+                    if player_name:
+                        done = True
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    if restart_rect.collidepoint(event.pos): # play game again
-                        
-                        if self.AiMode:  # AI Playing
+                    if restart_rect.collidepoint(event.pos):
+                        if self.AiMode:
                             self.AIPlaying(screen)
-                        else:  # User Playing
+                        else:
                             self.UserPlaying(screen)
+                        return player_name  # Exit the function after restarting game
 
-                    if exit_rect.collidepoint(event.pos):# return to startup page
+                    if exit_rect.collidepoint(event.pos):
                         self.RunStartup()
+                        return player_name  # Exit the function after going to startup
 
             screen.fill((0, 0, 0))
             screen.blit(game_over_text, game_over_rect.topleft)
+            if not player_name:  # If name is not yet entered, display input box and prompt
+                screen.blit(prompt_text, prompt_rect.topleft)
+                input_box.draw(screen)
             screen.blit(restart_text, restart_rect.topleft)
             screen.blit(exit_text, exit_rect.topleft)
             pygame.display.flip()
 
-
-    @staticmethod
-    def SaveScores(scores):
-        with open("highscores.txt", "w") as file:
-            for name, score in scores:
-                file.write(f"{name},{score}\n")
-
-    @staticmethod
-    def GetScores():
-        try:
-            with open("highscores.txt", "r") as file:
-                lines = file.readlines()
-                scores = [(line.split(",")[0], int(line.split(",")[1])) for line in lines]
-                scores.sort(key=lambda x: x[1], reverse=True)
-                return scores
-        except FileNotFoundError:
-            return []
+        return player_name
