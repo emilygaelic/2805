@@ -35,6 +35,9 @@ class Blocks:
         self.x = 0  # tracks current block's x axis location
         self.y = 0  # tracks current block's y axis location
 
+    def GetRotations(self):
+        return self.rotations
+    
     def GetBlockPos(self):
         return self.rotations[self.rotation]
 
@@ -49,14 +52,8 @@ class Blocks:
             pygame.draw.rect(gamePage, colour, (j * self.cellSize + (self.x + x),
                                                 i * self.cellSize + (self.y + y), self.cellSize - 1, self.cellSize - 1))
 
-    def DropBlock(self, newSpeed):  # drop block down y axis by 1 cell
-        if newSpeed == 2:
-            self.y += 40
-        elif newSpeed == 3:
-            self.y += 50
-        else:
-            self.y += self.cellSize
-        print(newSpeed)
+    def DropBlock(self):  # drop block down y axis by 1 cell
+        self.y += self.cellSize
 
     def MoveLeft(self):  # move block left across x axis by 1 cell
         self.x -= self.cellSize
