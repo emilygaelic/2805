@@ -69,7 +69,7 @@ class StartupPage:
         # user game configurations
         self.gameExtension = False
         self.AiMode = False
-        self.gameLevel = 1
+        self.gameLevel = 3 # easy 
         self.boardSize = 10  # board width
 
         self.playingMusic = True
@@ -226,6 +226,9 @@ class StartupPage:
             pygame.display.update()
 
             for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     mouse = pygame.mouse.get_pos()
                     if yes_rect.collidepoint(mouse):
@@ -237,7 +240,8 @@ class StartupPage:
     def AIPlaying(self, startPage):
         clock = pygame.time.Clock()  # start clock
         pygame.time.set_timer(pygame.USEREVENT, 300)
-        game = PlayGame(self.boardSize, self.gameExtension, self.AiMode, self.gameLevel)
+        game = PlayGame(self.boardSize, self.gameExtension, self.AiMode)
+        
         run = True  # run game variable
         while run:
             startPage.fill((0, 0, 0))  # black background
@@ -246,14 +250,28 @@ class StartupPage:
             for event in list(pygame.event.get()):
                 if event.type == pygame.QUIT:  # user quits
                     if (self.QuitGame()):
-                        run = False
-                        sys.exit()
+                        self.RunStartup()
                     else:
                         continue
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:  # quits with escape key
+                        if (self.QuitGame()):
+                            self.RunStartup()
+                        else:
+                            continue
+                    
+                    if event.key == pygame.K_p:  # pause game
+                        self.PauseGame()
+                    if event.key == pygame.K_m:  # toggle music
+                        if self.playingMusic:
+                            pygame.mixer.music.stop()
+                            self.playingMusic = False
+                        else:
+                            pygame.mixer.music.play(-1)
+                            self.playingMusic = True
 
             if game.AiMove == False:  # AI decides move
                 moves = game.RunAi()
-                # print(moves)
 
             # get first/next move
             if len(moves) != 0:
@@ -282,10 +300,13 @@ class StartupPage:
 
     def UserPlaying(self, startPage):
         clock = pygame.time.Clock()  # start clock
-        pygame.time.set_timer(pygame.USEREVENT, 300)
-        game = PlayGame(self.boardSize, self.gameExtension, self.AiMode, self.gameLevel)
+        droppingSpeed = self.gameLevel * 100
+        pygame.time.set_timer(pygame.USEREVENT, droppingSpeed)        
+        game = PlayGame(self.boardSize, self.gameExtension, self.AiMode)
+        
         rotate_sound = pygame.mixer.Sound("can_rotate.wav")
-        run = True  # run game variable
+        
+        run = True  # run game variable        
         while run:
             # DISPLAY - fill screen with grid and surfaces
             startPage.fill((0, 0, 0))  # black background
@@ -297,8 +318,6 @@ class StartupPage:
                 if event.type == pygame.QUIT:  # user quits
                     if (self.QuitGame()):
                         self.RunStartup()
-                        #run = False
-                       # sys.exit()
                     else:
                         continue
                 if event.type == pygame.KEYDOWN:
@@ -329,15 +348,16 @@ class StartupPage:
                             pygame.mixer.music.play(-1)
                             self.playingMusic = True
 
-
                 if event.type == pygame.USEREVENT:
-                    game.BlockFalls()
+                   game.BlockFalls()
+                
 
             if game.gameOver == True:
                 run = False
 
-            pygame.display.update()
+            
             clock.tick(30)
+            pygame.display.update()
         
        # self.GameOverActions()
         self.GameOverScreen()
