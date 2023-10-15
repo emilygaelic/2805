@@ -41,9 +41,9 @@ class ConfigurePage:
         size_5x20_color = SELECTED_COLOR if self.gameConfig.boardSize == 5 else pygame.Color('gray')
         size_10x20_color = SELECTED_COLOR if self.gameConfig.boardSize == 10 else pygame.Color('gray')
         size_15x20_color = SELECTED_COLOR if self.gameConfig.boardSize == 15 else pygame.Color('gray')
-        easy_mode_color = SELECTED_COLOR if self.gameConfig.gameLevel == 1 else pygame.Color('gray')
+        easy_mode_color = SELECTED_COLOR if self.gameConfig.gameLevel == 3 else pygame.Color('gray')
         medium_mode_color = SELECTED_COLOR if self.gameConfig.gameLevel == 2 else pygame.Color('gray')
-        hard_mode_color = SELECTED_COLOR if self.gameConfig.gameLevel == 3 else pygame.Color('gray')
+        hard_mode_color = SELECTED_COLOR if self.gameConfig.gameLevel == 1 else pygame.Color('gray')
         normal_mode_color = SELECTED_COLOR if self.gameConfig.gameExtension == False else pygame.Color('gray')
         extended_mode_color = SELECTED_COLOR if self.gameConfig.gameExtension == True else pygame.Color('gray')
         player_mode_color = SELECTED_COLOR if self.gameConfig.AiMode == False else pygame.Color('gray')
@@ -204,8 +204,8 @@ class ConfigurePage:
 
     def getLevel(self, selectedLevel):
         if selectedLevel == "Easy":
-            return 1
+            return 3
         elif selectedLevel == "Medium":
             return 2
         elif selectedLevel == "Hard":
-            return 3
+            return 1
