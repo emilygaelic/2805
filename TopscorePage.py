@@ -56,7 +56,7 @@ class HighscorePage:
                         screen.fill((255, 255, 255))
                         from StartupPage import StartupPage
                         startup_page = StartupPage()
-                        startup_page.draw_startup_page(screen)
+                        startup_page.drawStartupPage(screen)
                         return
                     elif close_button_rect.collidepoint(mouse_pos):
                         pygame.quit()
