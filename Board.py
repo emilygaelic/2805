@@ -1,7 +1,5 @@
 import pygame
 
-
-
 class GameBoard:
 
     def __init__(self, boardWidth):  # updated cols to 10
@@ -26,18 +24,17 @@ class GameBoard:
                 print(self.grid[i][j], end=" ")
             print("\n")
 
-    def Colours(self):
-        # Tetris block colors
-        # 0 index is for empty cells
+    def Colours(self): # Tetris block colors
+        # the index on the colour corrosponds with a block and colour
         return [
-            (25, 30, 40),  # Dark grey (for empty cells)
-            (21, 204, 209),  # Light blue
-            (13, 64, 216),  # Blue
-            (226, 116, 17),  # Orange
-            (166, 0, 247),  # Purple
-            (237, 234, 4),  # Yellow
-            (47, 230, 23),  # Green
-            (232, 18, 18)  # Red
+            (25, 30, 40),  # index 0 - Dark grey (for empty cells)
+            (21, 204, 209),  # index 1 - Light blue
+            (13, 64, 216),  # index 2 - Blue
+            (226, 116, 17),  # index 3 - Orange
+            (166, 0, 247),  # index 4 - Purple
+            (237, 234, 4),  # index 5 - Yellow
+            (47, 230, 23),  # index 6 - Green
+            (232, 18, 18)  # index 7 - Red
         ]
 
     def DrawBoard(self, gamePage):
