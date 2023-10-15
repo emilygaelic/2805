@@ -9,7 +9,7 @@ from ConfigurePage import *
 
 # PlayGame Class for managing the game
 class PlayGame:
-    def __init__(self, boardWidth, extensionEnabled, AIEnabled, gameLevel):
+    def __init__(self, boardWidth, extensionEnabled, AIEnabled):
         self.boardWidth = boardWidth
         self.boardHeight = 20
 
@@ -19,7 +19,7 @@ class PlayGame:
             self.TB = TetrisBeast(boardWidth)
             self.AiMove = False
 
-        self.droppingSpeed = gameLevel
+        #self.droppingSpeed = gameLevel
 
         pygame.mixer.init()
         pygame.mixer.music.load('tetrismusic.wav')
@@ -121,12 +121,12 @@ class PlayGame:
 
         # Make a tentative move by moving the block down
         for pos in self.blockPosition: # change block position
-            pos[0] += self.droppingSpeed
+            pos[0] += 1
 
         # If block can't move down, lock the block in place
         if not self.board.IsValidPosition(self.blockPosition):
             for pos in self.blockPosition: # change block position back
-                pos[0] -= self.droppingSpeed
+                pos[0] -= 1
 
             removed_lines = self.board.LockBlock(self.blockPosition, self.currentBlock.GetBlockID())
             self.eliminatedLines += removed_lines
