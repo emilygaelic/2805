@@ -72,6 +72,8 @@ class StartupPage:
         self.gameLevel = 1
         self.boardSize = 10  # board width
 
+        self.playingMusic = True
+
     def DrawStartupPage(self, startPage):
         pygame.display.set_caption('Welcome')
         pic = pygame.image.load('TetrisLogo.png')
@@ -160,6 +162,40 @@ class StartupPage:
 
             HighscorePage.ShowTopScores(startPage)
 
+    def PauseGame(self):
+        # pause screen
+        pauseScreen = pygame.display.set_mode((1000, 700))
+
+        red = (255, 0, 0)
+        white = (255, 255, 255)
+        font = pygame.font.SysFont("Courier", 30)
+
+        pause_rect = pygame.Rect(250, 250, 600, 200)
+        #yes_rect = pygame.Rect(350, 390, 100, 30)
+       #no_rect = pygame.Rect(600, 390, 100, 30)
+
+        pygame.draw.rect(pauseScreen, (red), pause_rect)
+
+        pauseSurface = font.render("Game is Paused", True, white)
+        returnInstructions = font.render("Press P to continue", True, white)
+
+        while True:
+            pauseScreen.blit(pauseSurface, (300, 300))
+            pauseScreen.blit(returnInstructions, (300, 330))
+            pygame.display.update()
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:  # user quits
+                    if (self.QuitGame()):
+                        sys.exit()
+                    else:
+                        continue
+
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_p:
+                        return True
+
+                    
     def QuitGame(self):
         # new quit screen for confirming game exit
         quitScreen = pygame.display.set_mode((1000, 700))
@@ -280,6 +316,16 @@ class StartupPage:
                         rotate_sound.play()
                     if event.key == pygame.K_DOWN:  # move down
                         game.BlockFalls()
+                    if event.key == pygame.K_p:  # pause game
+                        self.PauseGame()
+                    if event.key == pygame.K_m:  # toggle music
+                        if self.playingMusic:
+                            pygame.mixer.music.stop()
+                            self.playingMusic = False
+                        else:
+                            pygame.mixer.music.play(-1)
+                            self.playingMusic = True
+
 
                 if event.type == pygame.USEREVENT:
                     game.BlockFalls()
