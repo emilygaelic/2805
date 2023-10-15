@@ -73,6 +73,22 @@ class StartupPage:
         self.boardSize = 10  # board width
 
         self.playingMusic = True
+    
+    def RunStartup(self):
+        startPage = pygame.display.set_mode((1000, 700))
+        pygame.mouse.set_visible(1)
+        startPage.fill((255, 255, 255))
+        #startupPage = StartupPage()
+        self.DrawStartupPage(startPage)
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    mouse = pygame.mouse.get_pos()
+                    self.HandleMouseClick(startPage, mouse)
+            pygame.display.flip()
 
     def DrawStartupPage(self, startPage):
         pygame.display.set_caption('Welcome')
@@ -134,17 +150,7 @@ class StartupPage:
                 clock = pygame.time.Clock()
                 clock.tick(30)
             
-            #print("return from config page")
-            self.DrawStartupPage(startPage)
-            while True:
-                for event in pygame.event.get():
-                    if event.type == pygame.QUIT:
-                        pygame.quit()
-                        sys.exit()
-                    elif event.type == pygame.MOUSEBUTTONDOWN:
-                        mouse = pygame.mouse.get_pos()
-                        self.HandleMouseClick(startPage, mouse)
-                pygame.display.flip()
+            self.RunStartup()
 
         elif self.scores.collidepoint(mousePos):
             from TopscorePage import HighscorePage
@@ -171,14 +177,9 @@ class StartupPage:
         font = pygame.font.SysFont("Courier", 30)
 
         pause_rect = pygame.Rect(250, 250, 600, 200)
-        #yes_rect = pygame.Rect(350, 390, 100, 30)
-       #no_rect = pygame.Rect(600, 390, 100, 30)
-
         pygame.draw.rect(pauseScreen, (red), pause_rect)
-
         pauseSurface = font.render("Game is Paused", True, white)
         returnInstructions = font.render("Press P to continue", True, white)
-
         while True:
             pauseScreen.blit(pauseSurface, (300, 300))
             pauseScreen.blit(returnInstructions, (300, 330))
@@ -187,7 +188,7 @@ class StartupPage:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:  # user quits
                     if (self.QuitGame()):
-                        sys.exit()
+                        self.RunStartup()
                     else:
                         continue
 
@@ -295,15 +296,17 @@ class StartupPage:
 
                 if event.type == pygame.QUIT:  # user quits
                     if (self.QuitGame()):
-                        run = False
-                        sys.exit()
+                        self.RunStartup()
+                        #run = False
+                       # sys.exit()
                     else:
                         continue
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:  # quits with escape key
                         if (self.QuitGame()):
-                            run = False
-                            sys.exit()
+                            self.RunStartup()
+                            #run = False
+                            #sys.exit()
                         else:
                             continue
 
@@ -391,17 +394,7 @@ class StartupPage:
                             self.UserPlaying(screen)
 
                     if exit_rect.collidepoint(event.pos):# return to startup page
-                        while True:
-                            screen.fill((255, 255, 255))
-                            self.DrawStartupPage(screen)
-                            for event in pygame.event.get():
-                                if event.type == pygame.QUIT:
-                                    pygame.quit()
-                                    sys.exit()
-                                elif event.type == pygame.MOUSEBUTTONDOWN:
-                                    mouse = pygame.mouse.get_pos()
-                                    self.HandleMouseClick(screen, mouse)
-                            pygame.display.flip()
+                        self.RunStartup()
 
             screen.fill((0, 0, 0))
             screen.blit(game_over_text, game_over_rect.topleft)
