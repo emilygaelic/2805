@@ -6,6 +6,56 @@ from GamePage import PlayGame
 
 pygame.init()
 
+class InputBox:
+
+    def __init__(self, x, y, w, h, text=''):
+        self.rect = pygame.Rect(x, y, w, h)
+        self.color = pygame.Color('lightskyblue3')
+        self.text = text
+        self.font = pygame.font.SysFont('Courier', 30)
+        self.txt_surface = self.font.render(text, True, self.color)
+        self.active = False
+
+    def HandleEvent(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if self.rect.collidepoint(event.pos):
+                self.active = not self.active
+            else:
+                self.active = False
+            self.color = pygame.Color('dodgerblue2') if self.active else pygame.Color('lightskyblue3')
+        if event.type == pygame.KEYDOWN:
+            if self.active:
+                if event.key == pygame.K_RETURN:
+                    return self.text
+                elif event.key == pygame.K_BACKSPACE:
+                    self.text = self.text[:-1]
+                else:
+                    self.text += event.unicode
+                self.txt_surface = self.font.render(self.text, True, self.color)
+        return None
+
+    def update(self):
+        width = max(200, self.txt_surface.get_width() + 10)
+        self.rect.w = width
+
+    def draw(self, screen):
+        screen.blit(self.txt_surface, (self.rect.x + 5, self.rect.y + 5))
+        pygame.draw.rect(screen, self.color, self.rect, 2)
+
+    def Ask(self):
+        screen = pygame.display.get_surface()
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                result = self.HandleEvent(event)
+                if result is not None:
+                    return result
+            self.draw(screen)
+            pygame.display.flip()
+
+
 
 class StartupPage:
     font = pygame.font.SysFont('Courier', 50, 'bold')
@@ -53,14 +103,6 @@ class StartupPage:
             sys.exit()
 
         elif self.start.collidepoint(mousePos):  # GAME PLAY
-            # clock = pygame.time.Clock()  # start clock
-            # pygame.time.set_timer(pygame.USEREVENT, 300)
-            # game = PlayGame(self.boardSize, self.gameExtension, self.AiMode, self.gameLevel)
-            # rotate_sound = pygame.mixer.Sound("can_rotate.wav")
-            #from ConfigurePage import ConfigurePage
-           # configurePage = ConfigurePage()
-           # self.boardSize = configurePage.getField()
-            
 
             if self.AiMode:  # AI Playing
                 self.AIPlaying(startPage)
@@ -70,8 +112,7 @@ class StartupPage:
         elif self.configure.collidepoint(mousePos):
             from ConfigurePage import ConfigurePage
             configure_page = ConfigurePage()
-           
-            
+              
             pygame.mixer.music.load("background.wav")
             pygame.mixer.music.play(-1)
             config = True
@@ -91,7 +132,7 @@ class StartupPage:
                 clock = pygame.time.Clock()
                 clock.tick(30)
             
-            print("return from config page")
+            #print("return from config page")
             self.DrawStartupPage(startPage)
             while True:
                 for event in pygame.event.get():
@@ -198,6 +239,8 @@ class StartupPage:
             pygame.display.update()
             clock.tick(30)
 
+        self.GameOverScreen()
+
 
 
     def UserPlaying(self, startPage):
@@ -246,3 +289,94 @@ class StartupPage:
 
             pygame.display.update()
             clock.tick(30)
+        
+       # self.GameOverActions()
+        self.GameOverScreen()
+
+
+    def GameOverActions(self):
+        scores = self.GetScores()
+        if len(scores) < 10 or self.playerScore > scores[-1][1]:
+            # Prompt user for their name
+            inputBox = InputBox(20 * 30 // 2, 350, 140, 32)
+            name = inputBox.Ask()
+            scores.append((name, self.playerScore))
+            scores.sort(key=lambda x: x[1], reverse=True)
+            scores = scores[:10]
+            self.SaveScores(scores)
+
+            # Stop the background music and play game over sound
+            pygame.mixer.music.stop()  # Stop the background music
+            game_over_sound = pygame.mixer.Sound('gameover.wav')  # Load the game over sound
+            game_over_sound.play()  # Play the game over sound
+
+            # Transition to TopscorePage
+            from TopscorePage import HighscorePage
+            HighscorePage.show_top_scores()
+
+
+    def GameOverScreen(self):
+        screen = pygame.display.get_surface()
+        screen_width, screen_height = screen.get_size()
+
+        game_over_font = pygame.font.SysFont("Courier", 50)
+        game_over_text = game_over_font.render("GAME OVER!", True, (255, 0, 0))
+        game_over_rect = game_over_text.get_rect(center=(screen_width / 2, screen_height / 2 - 60))
+
+        restart_font = pygame.font.SysFont("Courier", 30)
+        restart_text = restart_font.render("RESTART", True, (255, 255, 255))
+        restart_rect = restart_text.get_rect(center=(screen_width / 2, screen_height / 2 + 20))
+
+        exit_font = pygame.font.SysFont("Courier", 30)
+        exit_text = exit_font.render("EXIT", True, (255, 255, 255))
+        exit_rect = exit_text.get_rect(center=(screen_width / 2, screen_height / 2 + 60))
+
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if restart_rect.collidepoint(event.pos): # play game again
+                        
+                        if self.AiMode:  # AI Playing
+                            self.AIPlaying(screen)
+                        else:  # User Playing
+                            self.UserPlaying(screen)
+
+                    if exit_rect.collidepoint(event.pos):# return to startup page
+                        while True:
+                            screen.fill((255, 255, 255))
+                            self.DrawStartupPage(screen)
+                            for event in pygame.event.get():
+                                if event.type == pygame.QUIT:
+                                    pygame.quit()
+                                    sys.exit()
+                                elif event.type == pygame.MOUSEBUTTONDOWN:
+                                    mouse = pygame.mouse.get_pos()
+                                    self.HandleMouseClick(screen, mouse)
+                            pygame.display.flip()
+
+            screen.fill((0, 0, 0))
+            screen.blit(game_over_text, game_over_rect.topleft)
+            screen.blit(restart_text, restart_rect.topleft)
+            screen.blit(exit_text, exit_rect.topleft)
+            pygame.display.flip()
+
+
+    @staticmethod
+    def SaveScores(scores):
+        with open("highscores.txt", "w") as file:
+            for name, score in scores:
+                file.write(f"{name},{score}\n")
+
+    @staticmethod
+    def GetScores():
+        try:
+            with open("highscores.txt", "r") as file:
+                lines = file.readlines()
+                scores = [(line.split(",")[0], int(line.split(",")[1])) for line in lines]
+                scores.sort(key=lambda x: x[1], reverse=True)
+                return scores
+        except FileNotFoundError:
+            return []
