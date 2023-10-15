@@ -7,8 +7,8 @@ class HighscorePage:
     @staticmethod
     def ShowTopScores(screen):
         # Fetch scores from the PlayGame's method
-        from GamePage import PlayGame
-        scores = PlayGame.GetScores()
+        from StartupPage import StartupPage
+        scores = StartupPage.GetScores()
 
         font = pygame.font.SysFont('Courier', 50, 'bold')
 
@@ -56,7 +56,7 @@ class HighscorePage:
                         screen.fill((255, 255, 255))
                         from StartupPage import StartupPage
                         startup_page = StartupPage()
-                        startup_page.drawStartupPage(screen)
+                        startup_page.DrawStartupPage(screen)
                         return
                     elif close_button_rect.collidepoint(mouse_pos):
                         pygame.quit()
