@@ -293,11 +293,7 @@ class PlayGame:
             "Medium": 2,
             "Hard": 3
         }
-        self.droppingSpeed = level_speeds.get(self.level, 1)
-
-    def getPlayerName(self):
-        inputBox = InputBox(self.boardWidth * 30 // 2, 350, 140, 32)
-        return inputBox.ask()
+        self.speed = level_speeds[self.level]
 
     def GameOverActions(self):
         scores = self.GetScores()
@@ -317,7 +313,7 @@ class PlayGame:
 
             # Transition to TopscorePage
             from TopscorePage import HighscorePage
-            HighscorePage.showTopScores()
+            HighscorePage.show_top_scores()
 
     def RestartGame(self):
         print("restart game")
