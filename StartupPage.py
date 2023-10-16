@@ -68,8 +68,8 @@ class StartupPage:
 
         # user game configurations
         self.gameExtension = False
-        self.AiMode = True
-        self.gameLevel = 1 # easy 
+        self.AiMode = False
+        self.gameLevel = 3 # easy 
         self.boardSize = 10  # board width
 
         self.playingMusic = True
