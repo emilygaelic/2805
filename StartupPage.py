@@ -74,7 +74,6 @@ class StartupPage:
 
         self.playingMusic = True
 
-        self.playerScore=0
 
     def RunStartup(self):
         startPage = pygame.display.set_mode((1000, 700))
@@ -268,7 +267,8 @@ class StartupPage:
             pygame.display.update()
             clock.tick(30)
 
-        self.GameOverScreen()
+        playerScore = game.GetScore()
+        self.GameOverScreen(playerScore)
 
     def UserPlaying(self, startPage):
         clock = pygame.time.Clock()  # start clock
@@ -328,10 +328,10 @@ class StartupPage:
 
             pygame.display.update()
             clock.tick(30)
+        playerScore = game.GetScore()
+        self.GameOverScreen(playerScore)
 
-        self.GameOverScreen()
-
-    def GameOverScreen(self):
+    def GameOverScreen(self, playerScore):
         screen = pygame.display.get_surface()
         screen_width, screen_height = screen.get_size()
 
@@ -385,8 +385,8 @@ class StartupPage:
                         player_name = "AI"
                         if not addScore:
                             with open("HighScore.txt", "a") as file:
-                                playerScore = str(player_name) + " : " + str(self.playerScore) + "\n"
-                                file.write(playerScore)
+                                writeScore = str(player_name) + " : " + str(playerScore) + "\n"
+                                file.write(writeScore)
                             addScore = True
          
                     else: 
@@ -395,8 +395,8 @@ class StartupPage:
                         if player_name and not addScore:# add player name and score to file
                             
                             with open("HighScore.txt", "a") as file:
-                                playerScore = str(player_name) + " : " + str(self.playerScore) + "\n"
-                                file.write(playerScore)    
+                                writeScore = str(player_name) + " : " + str(playerScore) + "\n"
+                                file.write(writeScore)    
                             addScore = True                    
 
                 if event.type == pygame.MOUSEBUTTONDOWN:
