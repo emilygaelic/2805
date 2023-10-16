@@ -1,10 +1,10 @@
 import copy
 
 class TetrisBeast:
-    def __init__(self, boardLength, boardHeight):
+    def __init__(self, boardLength):
         
         self.length = boardLength # 10
-        self.height = boardHeight #20
+        self.height = 20
         self.board = None
         self.block1 = None
         self.block2 = None
