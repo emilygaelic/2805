@@ -1,6 +1,4 @@
 # Tetris
-import sys
-import pygame
 from ConfigurePage import ConfigurePage
 from StartupPage import StartupPage
 from GamePage import PlayGame
