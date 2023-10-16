@@ -9,14 +9,13 @@ class HighscorePage:
         self.font = pygame.font.SysFont('Courier', 30)
 
     def showTopScores(self, screen, startup_instance):
-        # Fetch scores from the PlayGame's method
-        scores = startup_instance.GetScores()
-
-        # If there are fewer than 10 scores, fill the rest with random values
-        while len(scores) < 10:
-            random_name = self._get_random_name()
-            random_score = self._get_random_score()
-            scores.append((random_name, random_score))
+        scores = []
+        
+        with open("HighScore.txt", "r") as file:
+            highscores = file.readlines()
+            for line in highscores:
+                word = line.split()
+                scores.append((word[0], word[2]))
 
         # Sort the scores in descending order
         scores.sort(key=lambda x: x[1], reverse=True)
@@ -68,13 +67,3 @@ class HighscorePage:
                     elif close_button_rect.collidepoint(mouse_pos):
                         pygame.quit()
                         sys.exit()
-
-    def _get_random_name(self):
-        # You can customize this list with real names
-        names = ["Sarah", "Linda", "John", "Adriana", "Emily", "Sunwoo", "Amy", "James", "Susan", "Robert"]
-        return random.choice(names)
-
-    def _get_random_score(self):
-        # Generate random score based on the specified rule
-        lines_cleared = random.randint(10, 50)
-        return lines_cleared * 100
